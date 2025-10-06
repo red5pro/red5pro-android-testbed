@@ -1,0 +1,133 @@
+package net.red5.testbed;
+
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
+import android.content.Intent;
+import android.content.res.Resources;
+import android.os.Build;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+import net.red5.testbed.basic.StandalonePublishActivity;
+import net.red5.testbed.basic.StandaloneSubscribeActivity;
+import net.red5.testbed.basic.StreamManagerPublishActivity;
+import net.red5.testbed.basic.StreamManagerSubscribeActivity;
+
+
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+    final private List<ActivityLink> activities = new ArrayList<>();
+    private GridView list;
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_main);
+
+        list = findViewById(R.id.list);
+        createList();
+        setListAdapter(activities);
+
+    }
+
+    private void createList() {
+
+        addActivity(StreamManagerPublishActivity.class, "Publish Stream Manager(Cloud)");
+        addActivity(StreamManagerSubscribeActivity.class, "Subscribe Stream Manager(Cloud)");
+        addActivity(StandalonePublishActivity.class, "Publish Standalone");
+        addActivity(StandaloneSubscribeActivity.class, "Subscribe Standalone");
+
+
+        addActivity(SettingsActivity.class, "Settings");
+    }
+
+    private void addActivity(Class<?> cls, String label) {
+        activities.add(new ActivityLink(new Intent(this, cls), label));
+    }
+
+    private void setListAdapter(List<ActivityLink> activities) {
+        list.setAdapter(new ButtonAdapter(activities));
+        list.setOnItemClickListener(this);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        ActivityLink link = activities.get(i);
+        startActivity(link.getIntent());
+    }
+
+    public class ActivityLink {
+        private final String label;
+        private final Intent intent;
+
+        public ActivityLink(Intent intent, String label) {
+            this.intent = intent;
+            this.label = label;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public Intent getIntent() {
+            return intent;
+        }
+
+    }
+
+    public class ButtonAdapter extends BaseAdapter {
+
+        private List<ActivityLink> links;
+
+        public ButtonAdapter(List<ActivityLink> links) {
+            this.links = links;
+        }
+
+        public int getCount() {
+            return links.size();
+        }
+
+        public ActivityLink getItem(int position) {
+            return links.get(position);
+        }
+
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            TextView button;
+            Resources resources = parent.getResources();
+            if (convertView == null) {
+                button = new TextView(parent.getContext());
+                button.setLayoutParams(new GridView.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+                button.setGravity(Gravity.CENTER);
+                button.setPadding(8, 48, 8, 48);
+                button.setTextColor(ResourcesCompat.getColor(resources, R.color.textColor, null));
+                button.setBackgroundColor(ResourcesCompat.getColor(resources, R.color.colorPrimary, null));
+                convertView = button;
+            } else {
+                button = (TextView) convertView;
+            }
+            button.setText(links.get(position).getLabel());
+            return convertView;
+        }
+    }
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <!-- Surface View for video rendering -->
+    <net.red5.android.core.Red5Renderer
+        android:id="@+id/surface_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true" />
+
+    <TextView
+        android:id="@+id/status_indicator_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:text="Disconnected"
+        android:textColor="@color/red"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:padding="16dp" />
+
+    <!-- Subscribe button at bottom -->
+    <Button
+        android:id="@+id/btn_subscribe"
+        android:layout_width="200dp"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="32dp"
+        android:text="START SUBSCRIBE"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+</RelativeLayout>
