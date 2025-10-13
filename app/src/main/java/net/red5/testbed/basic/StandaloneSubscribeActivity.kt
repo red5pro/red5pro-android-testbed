@@ -53,6 +53,7 @@ class StandaloneSubscribeActivity : AppCompatActivity(), Red5ProWebrtcEventListe
     private fun initializeSubscribeClient() {
         webrtcClient = IRed5WebrtcClient.builder()
             .setActivity(this)
+            .setDtlsSetup(SettingsActivity.getDtlsSetup(this))
             .setLicenseKey("MQZO-2CI6-XTAZ-6PLX")
             .setServerIp(SettingsActivity.getStandaloneServerIp(this))
             .setStreamName(SettingsActivity.getStreamName(this))

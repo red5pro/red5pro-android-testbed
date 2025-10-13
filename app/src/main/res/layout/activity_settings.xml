@@ -119,6 +119,7 @@
             android:layout_below="@id/tv_stream_name"
             android:layout_marginTop="8dp" />
 
+        <!-- Username -->
         <TextView
             android:id="@+id/tv_username"
             android:layout_width="match_parent"
@@ -140,7 +141,7 @@
             android:layout_below="@id/tv_username"
             android:layout_marginTop="8dp" />
 
-
+        <!-- Password -->
         <TextView
             android:id="@+id/tv_password"
             android:layout_width="match_parent"
@@ -162,6 +163,49 @@
             android:layout_below="@id/tv_password"
             android:layout_marginTop="8dp" />
 
+        <!-- DTLS Setup Mode -->
+        <TextView
+            android:id="@+id/tv_dtls_setup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DTLS Setup Mode"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/et_password"
+            android:layout_marginTop="24dp" />
+
+        <RadioGroup
+            android:id="@+id/rg_dtls_setup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_dtls_setup"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_actpass"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="actpass"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/rb_active"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="active" />
+
+            <RadioButton
+                android:id="@+id/rb_passive"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="passive" />
+
+        </RadioGroup>
+
         <!-- Save Button -->
         <Button
             android:id="@+id/btn_save"
@@ -170,7 +214,7 @@
             android:text="SAVE SETTINGS"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:layout_below="@id/et_password"
+            android:layout_below="@id/rg_dtls_setup"
             android:layout_marginTop="40dp"
             android:layout_marginBottom="24dp" />
 

@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
@@ -17,7 +19,10 @@ class SettingsActivity : AppCompatActivity() {
     private var etStreamName: EditText? = null
     private var etUserName: EditText? = null
     private var etPassword: EditText? = null
-
+    private var rgDtlsSetup: RadioGroup? = null
+    private var rbActpass: RadioButton? = null
+    private var rbActive: RadioButton? = null
+    private var rbPassive: RadioButton? = null
 
     private var btnSave: Button? = null
 
@@ -49,6 +54,10 @@ class SettingsActivity : AppCompatActivity() {
         etUserName = findViewById<EditText>(R.id.et_username)
         etPassword = findViewById<EditText>(R.id.et_password)
         btnSave = findViewById<Button>(R.id.btn_save)
+        rgDtlsSetup = findViewById<RadioGroup>(R.id.rg_dtls_setup)
+        rbActpass = findViewById<RadioButton>(R.id.rb_actpass)
+        rbActive = findViewById<RadioButton>(R.id.rb_active)
+        rbPassive = findViewById<RadioButton>(R.id.rb_passive)
     }
 
     private fun loadSettings() {
@@ -60,6 +69,7 @@ class SettingsActivity : AppCompatActivity() {
         val streamName: String = sharedPreferences!!.getString(KEY_STREAM_NAME, "myStream")!!
         val username: String = sharedPreferences!!.getString(KEY_USER_NAME, "")!!
         val password: String = sharedPreferences!!.getString(KEY_PASSWORD, "")!!
+        val dtlsSetup: String = sharedPreferences!!.getString(KEY_DTLS_SETUP, "actpass")!!
 
         etStreamManagerHost!!.setText(streamManagerHost)
         etStandaloneServerIp!!.setText(standaloneServerIp)
@@ -68,6 +78,14 @@ class SettingsActivity : AppCompatActivity() {
         etStreamName!!.setText(streamName)
         etUserName!!.setText(username)
         etPassword!!.setText(password)
+
+
+        when (dtlsSetup) {
+            "active" -> rbActive!!.isChecked = true
+            "passive" -> rbPassive!!.isChecked = true
+            "actpass" -> rbActpass!!.isChecked = true
+            else -> rbActpass!!.isChecked = true
+        }
     }
 
     private fun saveSettings() {
@@ -83,6 +101,16 @@ class SettingsActivity : AppCompatActivity() {
         if (nodeGroup.isEmpty()) nodeGroup = "default"
         if (streamName.isEmpty()) streamName = "myStream"
 
+        var dtlsSetup = "actpass" // default
+        val selectedId = rgDtlsSetup!!.checkedRadioButtonId
+        if (selectedId == R.id.rb_active) {
+            dtlsSetup = "active"
+        } else if (selectedId == R.id.rb_passive) {
+            dtlsSetup = "passive"
+        } else if (selectedId == R.id.rb_actpass) {
+            dtlsSetup = "actpass"
+        }
+
         val editor = sharedPreferences!!.edit()
         editor.putString(KEY_STREAM_MANAGER_HOST, streamManagerHost)
         editor.putString(KEY_STANDALONE_SERVER_IP, standaloneServerIp)
@@ -92,6 +120,8 @@ class SettingsActivity : AppCompatActivity() {
         editor.putString(KEY_USER_NAME, userName)
         editor.putString(KEY_PASSWORD, password)
 
+
+        editor.putString(KEY_DTLS_SETUP, dtlsSetup)
 
         editor.apply()
 
@@ -112,10 +142,17 @@ class SettingsActivity : AppCompatActivity() {
         private const val KEY_STREAM_NAME = "stream_name"
         private const val KEY_USER_NAME = "username"
         private const val KEY_PASSWORD = "password"
+        private const val KEY_ENABLE_DEBUG = "enable_debug"
+        private const val KEY_DTLS_SETUP = "dtls_setup"
 
         fun getStreamManagerHost(context: Context): String {
             val prefs = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
             return prefs.getString(KEY_STREAM_MANAGER_HOST, "")!!
+        }
+
+        fun isDebugEnabled(context: Context): Boolean {
+            val prefs = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            return prefs.getBoolean(KEY_ENABLE_DEBUG, false)
         }
 
         fun getStandaloneServerIp(context: Context): String {
@@ -146,6 +183,11 @@ class SettingsActivity : AppCompatActivity() {
         fun getPassword(context: Context): String {
             val prefs = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
             return prefs.getString(KEY_PASSWORD, "myStream")!!
+        }
+
+        fun getDtlsSetup(context: Context): String {
+            val prefs = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            return prefs.getString(KEY_DTLS_SETUP, "actpass")!!
         }
     }
 }
