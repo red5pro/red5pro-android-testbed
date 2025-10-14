@@ -164,7 +164,7 @@ class StandalonePublishActivity : AppCompatActivity(), Red5ProWebrtcEventListene
     private fun initializeWebrtcClient() {
         webrtcClient = IRed5WebrtcClient.builder()
             .setActivity(this)
-            .setLicenseKey("MQZO-2CI6-XTAZ-6PLX")
+            .setLicenseKey(SettingsActivity.getLicenseKey(this))
             .setServerIp(SettingsActivity.getStandaloneServerIp(this))
             .setStreamName(SettingsActivity.getStreamName(this))
             .setUserName(SettingsActivity.getUserName(this))

@@ -52,7 +52,7 @@ class StreamManagerSubscribeActivity : AppCompatActivity(), Red5ProWebrtcEventLi
     private fun initializeSubscribeClient() {
         webrtcClient = IRed5WebrtcClient.builder()
             .setActivity(this)
-            .setLicenseKey("MQZO-2CI6-XTAZ-6PLX")
+            .setLicenseKey(SettingsActivity.getLicenseKey(this))
             .setStreamManagerHost(SettingsActivity.Companion.getStreamManagerHost(this))
             .setStreamName(SettingsActivity.Companion.getStreamName(this))
             .setVideoRenderer(surfaceView)

@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class SettingsActivity : AppCompatActivity() {
+    private var etLicenseKey: EditText? = null
     private var etStreamManagerHost: EditText? = null
     private var etStandaloneServerIp: EditText? = null
     private var etAppName: EditText? = null
@@ -46,6 +47,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
+        etLicenseKey = findViewById<EditText>(R.id.et_license_key)
         etStreamManagerHost = findViewById<EditText>(R.id.et_stream_manager_host)
         etStandaloneServerIp = findViewById<EditText>(R.id.et_standalone_server_ip)
         etAppName = findViewById<EditText>(R.id.et_app_name)
@@ -61,6 +63,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun loadSettings() {
+        val licenseKey: String = sharedPreferences!!.getString(KEY_LICENSE_KEY, "")!!
         val streamManagerHost: String = sharedPreferences!!.getString(KEY_STREAM_MANAGER_HOST, "")!!
         val standaloneServerIp: String =
             sharedPreferences!!.getString(KEY_STANDALONE_SERVER_IP, "")!!
@@ -71,6 +74,7 @@ class SettingsActivity : AppCompatActivity() {
         val password: String = sharedPreferences!!.getString(KEY_PASSWORD, "")!!
         val dtlsSetup: String = sharedPreferences!!.getString(KEY_DTLS_SETUP, "actpass")!!
 
+        etLicenseKey!!.setText(licenseKey)
         etStreamManagerHost!!.setText(streamManagerHost)
         etStandaloneServerIp!!.setText(standaloneServerIp)
         etAppName!!.setText(appName)
@@ -89,6 +93,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun saveSettings() {
+        val licenseKey = etLicenseKey!!.getText().toString().trim { it <= ' ' }
         val streamManagerHost = etStreamManagerHost!!.getText().toString().trim { it <= ' ' }
         val standaloneServerIp = etStandaloneServerIp!!.getText().toString().trim { it <= ' ' }
         var appName = etAppName!!.getText().toString().trim { it <= ' ' }
@@ -112,6 +117,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val editor = sharedPreferences!!.edit()
+        editor.putString(KEY_LICENSE_KEY, licenseKey)
         editor.putString(KEY_STREAM_MANAGER_HOST, streamManagerHost)
         editor.putString(KEY_STANDALONE_SERVER_IP, standaloneServerIp)
         editor.putString(KEY_APP_NAME, appName)
@@ -135,6 +141,7 @@ class SettingsActivity : AppCompatActivity() {
 
     companion object {
         private const val PREFS_NAME = "Red5ProSettings"
+        private const val KEY_LICENSE_KEY = "license_key"
         private const val KEY_STREAM_MANAGER_HOST = "stream_manager_host"
         private const val KEY_STANDALONE_SERVER_IP = "standalone_server_ip"
         private const val KEY_APP_NAME = "app_name"
@@ -144,6 +151,11 @@ class SettingsActivity : AppCompatActivity() {
         private const val KEY_PASSWORD = "password"
         private const val KEY_ENABLE_DEBUG = "enable_debug"
         private const val KEY_DTLS_SETUP = "dtls_setup"
+
+        fun getLicenseKey(context: Context): String {
+            val prefs = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            return prefs.getString(KEY_LICENSE_KEY, "")!!
+        }
 
         fun getStreamManagerHost(context: Context): String {
             val prefs = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
