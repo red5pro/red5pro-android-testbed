@@ -9,6 +9,26 @@
         android:layout_height="wrap_content"
         android:padding="24dp">
 
+        <!-- License Key -->
+        <TextView
+            android:id="@+id/tv_license_key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SDK License Key"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp" />
+
+        <EditText
+            android:id="@+id/et_license_key"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="XXXX-XXXX-XXXX-XXXX"
+            android:inputType="textUri"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_below="@id/tv_license_key"
+            android:layout_marginTop="8dp" />
 
         <!-- Stream Manager Host -->
         <TextView
@@ -18,13 +38,14 @@
             android:text="Stream Manager Host"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:layout_below="@id/et_license_key"
             android:layout_marginTop="12dp" />
 
         <EditText
             android:id="@+id/et_stream_manager_host"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:hint="test-sm2-1-oci.red5pro.net"
+            android:hint="https://my-deploy.cloud.red5.net"
             android:inputType="textUri"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
@@ -46,7 +67,7 @@
             android:id="@+id/et_standalone_server_ip"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:hint="10.1.1.1"
+            android:hint="https://my-deploy.red5.net"
             android:inputType="text"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
