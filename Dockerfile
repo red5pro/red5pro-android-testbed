@@ -33,7 +33,7 @@ ARG STANDALONE_ENDPOINT
 RUN export LICENSE_KEY=${LICENSE_KEY} && \
     export SM_ENDPOINT=${SM_ENDPOINT} && \
     export STANDALONE_ENDPOINT=${STANDALONE_ENDPOINT} && \
-    ./gradlew assembleDebug && \
+    ./gradlew assembleQaDebug && \
     mkdir -p /workspace/dist && \
     ls -lh /workspace/app/build/outputs/apk/debug && \
     cp -v /workspace/app/build/outputs/apk/debug/*.apk /workspace/dist/ || echo "⚠️ No APKs found!"

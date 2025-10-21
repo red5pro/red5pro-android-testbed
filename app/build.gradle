@@ -18,21 +18,27 @@ android {
 
     buildFeatures.buildConfig true
 
+    defaultConfig {
+        applicationId "net.red5.testbed"
+        def licenseKey = System.getenv("LICENSE_KEY") ?: "N/A"
+        def smEndpoint = System.getenv("SM_ENDPOINT") ?: "N/A"
+        def standaloneEndpoint = System.getenv("STANDALONE_ENDPOINT") ?: "N/A"
+        buildConfigField "String", "LICENSE_KEY", "\"${licenseKey}\""
+        buildConfigField "String", "SM_ENDPOINT", "\"${smEndpoint}\""
+        buildConfigField "String", "STANDALONE_ENDPOINT", "\"${standaloneEndpoint}\""
+    }
+
     flavorDimensions "env"
     productFlavors {
         qa {
             dimension "env"
-            def licenseKey = System.getenv("LICENSE_KEY") ?: "N/A"
-            def smEndpoint = System.getenv("SM_ENDPOINT") ?: "N/A"
-            def standaloneEndpoint = System.getenv("STANDALONE_ENDPOINT") ?: "N/A"
-            buildConfigField "String", "LICENSE_KEY", "\"${licenseKey}\""
-            buildConfigField "String", "SM_ENDPOINT", "\"${smEndpoint}\""
-            buildConfigField "String", "STANDALONE_ENDPOINT", "\"${standaloneEndpoint}\""
+        }
+        production {
+            dimension "env"
         }
     }
 
     buildTypes {
-
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
