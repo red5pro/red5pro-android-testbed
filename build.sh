@@ -5,7 +5,6 @@ i#!bin/bash
    --build-arg LICENSE_KEY="XXXX-XXXX-XXXX-XXXX" \
    --build-arg SM_ENDPOINT="https://todd.cloud.red5.net" \
    --build-arg STANDALONE_ENDPOINT="https://todd-oci.red5pro.net" \
-   --build-arg LIB_PATH="dist_red5pro/red5-android-sdk-*-qa-release.aar"
    -t android-testbed-builder .
  docker create --name testbed-out android-testbed-builder
  docker cp testbed-out:/workspace/dist ./dist
