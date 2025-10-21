@@ -30,9 +30,9 @@ class SettingsActivity : AppCompatActivity() {
 
     private var sharedPreferences: SharedPreferences? = null
 
-    private val defaultLicenseKey = BuildConfig.LICENSE_KEY
-    private val defaultStreamManagerEndpoint = BuildConfig.SM_ENDPOINT
-    private val defaultStandaloneEndpoint = BuildConfig.STANDALONE_ENDPOINT
+    private var defaultLicenseKey = if (BuildConfig.LICENSE_KEY == "N/A") "" else BuildConfig.LICENSE_KEY
+    private var defaultStreamManagerEndpoint = if (BuildConfig.SM_ENDPOINT == "N/A") "" else BuildConfig.SM_ENDPOINT
+    private var defaultStandaloneEndpoint = if (BuildConfig.STANDALONE_ENDPOINT == "N/A") "" else BuildConfig.STANDALONE_ENDPOINT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
