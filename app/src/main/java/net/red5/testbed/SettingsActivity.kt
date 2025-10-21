@@ -10,6 +10,7 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import net.red5.android.BuildConfig
 
 class SettingsActivity : AppCompatActivity() {
     private var etLicenseKey: EditText? = null
@@ -28,6 +29,10 @@ class SettingsActivity : AppCompatActivity() {
     private var btnSave: Button? = null
 
     private var sharedPreferences: SharedPreferences? = null
+
+    private val defaultLicenseKey = BuildConfig.LICENSE_KEY
+    private val defaultStreamManagerEndpoint = BuildConfig.SM_ENDPOINT
+    private val defaultStandaloneEndpoint = BuildConfig.STANDALONE_ENDPOINT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,10 +68,12 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun loadSettings() {
-        val licenseKey: String = sharedPreferences!!.getString(KEY_LICENSE_KEY, "")!!
-        val streamManagerHost: String = sharedPreferences!!.getString(KEY_STREAM_MANAGER_HOST, "")!!
+        val licenseKey: String = sharedPreferences!!.getString(KEY_LICENSE_KEY,
+            defaultLicenseKey)!!
+        val streamManagerHost: String = sharedPreferences!!.getString(KEY_STREAM_MANAGER_HOST,
+            defaultStreamManagerEndpoint)!!
         val standaloneServerIp: String =
-            sharedPreferences!!.getString(KEY_STANDALONE_SERVER_IP, "")!!
+            sharedPreferences!!.getString(KEY_STANDALONE_SERVER_IP, defaultStandaloneEndpoint)!!
         val appName: String = sharedPreferences!!.getString(KEY_APP_NAME, "live")!!
         val nodeGroup: String = sharedPreferences!!.getString(KEY_NODE_GROUP, "default")!!
         val streamName: String = sharedPreferences!!.getString(KEY_STREAM_NAME, "myStream")!!

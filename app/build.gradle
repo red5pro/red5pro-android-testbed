@@ -16,6 +16,21 @@ android {
 
     }
 
+    buildFeatures.buildConfig true
+
+    flavorDimensions "env"
+    productFlavors {
+        qa {
+            dimension "env"
+            def licenseKey = System.getenv("LICENSE_KEY") ?: ""
+            def smEndpoint = System.getenv("SM_ENDPOINT") ?: ""
+            def standaloneEndpoint = System.getenv("STANDALONE_ENDPOINT") ?: ""
+            buildConfigField "String", "LICENSE_KEY", "\"${licenseKey}\""
+            buildConfigField "String", "SM_ENDPOINT", "\"${smEndpoint}\""
+            buildConfigField "String", "STANDALONE_ENDPOINT", "\"${standaloneEndpoint}\""
+        }
+    }
+
     buildTypes {
 
         release {
