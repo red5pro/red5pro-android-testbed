@@ -30,12 +30,11 @@ ARG SM_ENDPOINT
 ARG STANDALONE_ENDPOINT
 ARG LIB_PATH
 
-cp ${LIB_PATH} app/libs/
-
 # Use Gradle Wrapper to build .aar
 RUN export LICENSE_KEY=${LICENSE_KEY} && \
     export SM_ENDPOINT=${SM_ENDPOINT} && \
     export STANDALONE_ENDPOINT=${STANDALONE_ENDPOINT} && \
+    cp ${LIB_PATH} app/libs/ && \
     ./gradlew assembleDebug && \
     mkdir -p /workspace/dist && \
     ls -lh /workspace/app/build/outputs/apk/debug && \
