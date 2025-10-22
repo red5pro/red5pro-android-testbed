@@ -35,8 +35,8 @@ RUN export LICENSE_KEY=${LICENSE_KEY} && \
     export STANDALONE_ENDPOINT=${STANDALONE_ENDPOINT} && \
     ./gradlew assembleQaDebug && \
     mkdir -p /workspace/dist && \
-    ls -lh /workspace/app/build/outputs/apk/qa && \
-    cp -v /workspace/app/build/outputs/apk/qa/*.apk /workspace/dist/ || echo "⚠️ No APKs found!"
+    ls -lh /workspace/app/build/outputs/apk && \
+    cp -v /workspace/app/build/outputs/apk/**/*.apk /workspace/dist/ || echo "⚠️ No APKs found!"
 
 # Default command (prints location of AAR)
 CMD ["bash", "-c", "echo \"APKs:\" && ls -lh /workspace/dist"]
