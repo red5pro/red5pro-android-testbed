@@ -29,7 +29,8 @@ android {
 
             def templateFile = file('test.xml.template')
             def destinationFile = file('src/main/res/raw/test.xml')
-
+            destinationFile.parentFile.mkdirs()
+            
             String content = templateFile.text
             String newContent = content.replace('@@LICENSE_KEY@@', licenseKey).replace("@@SM_ENPOINT@@", smEndpoint).replace("@@STANDALONE_ENDPOINT@@", standaloneEndpoint)
 
