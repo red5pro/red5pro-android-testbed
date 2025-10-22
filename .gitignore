@@ -10,3 +10,5 @@ app/build
 .externalNativeBuild
 .cxx
 local.properties
+
+/app/src/main/res/raw/test.xml
