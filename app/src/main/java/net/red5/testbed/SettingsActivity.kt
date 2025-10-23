@@ -41,7 +41,7 @@ class SettingsActivity : AppCompatActivity() {
     private var defaultStandaloneEndpoint: String? = ""
 
     private fun valueOr(value: String?, defaultValue: String): String {
-        return if (value != null && value == "N/A") defaultValue else ""
+        return if (value == null || value == "N/A") defaultValue else value
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,12 +116,21 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun loadSettings() {
-        val licenseKey: String = sharedPreferences!!.getString(KEY_LICENSE_KEY,
+        var licenseKey: String = sharedPreferences!!.getString(KEY_LICENSE_KEY,
             defaultLicenseKey)!!
-        val streamManagerHost: String = sharedPreferences!!.getString(KEY_STREAM_MANAGER_HOST,
+        if (licenseKey.isEmpty()) {
+            licenseKey = defaultLicenseKey!!
+        }
+        var streamManagerHost: String = sharedPreferences!!.getString(KEY_STREAM_MANAGER_HOST,
             defaultStreamManagerEndpoint)!!
-        val standaloneServerIp: String =
+        if (streamManagerHost.isEmpty()) {
+            streamManagerHost = defaultStreamManagerEndpoint!!
+        }
+        var standaloneServerIp: String =
             sharedPreferences!!.getString(KEY_STANDALONE_SERVER_IP, defaultStandaloneEndpoint)!!
+        if (standaloneServerIp.isEmpty()) {
+            standaloneServerIp = defaultStandaloneEndpoint!!
+        }
         val appName: String = sharedPreferences!!.getString(KEY_APP_NAME, "live")!!
         val nodeGroup: String = sharedPreferences!!.getString(KEY_NODE_GROUP, "default")!!
         val streamName: String = sharedPreferences!!.getString(KEY_STREAM_NAME, "myStream")!!
