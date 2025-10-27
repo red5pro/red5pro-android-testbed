@@ -163,6 +163,50 @@
             android:layout_below="@id/tv_password"
             android:layout_marginTop="8dp" />
 
+        <!-- Pubnub Publish Key -->
+        <TextView
+            android:id="@+id/tv_pubnub_publish_key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pubnub Publish Key"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/et_password"
+            android:layout_marginTop="24dp" />
+
+        <EditText
+            android:id="@+id/et_pubnub_publish_key"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint=""
+            android:inputType="text"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_below="@id/tv_pubnub_publish_key"
+            android:layout_marginTop="8dp" />
+
+        <!-- Pubnub Subscribe Key -->
+        <TextView
+            android:id="@+id/tv_pubnub_subscribe_key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pubnub Subscribe Key"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/et_pubnub_publish_key"
+            android:layout_marginTop="24dp" />
+
+        <EditText
+            android:id="@+id/et_pubnub_subscribe_key"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint=""
+            android:inputType="text"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_below="@id/tv_pubnub_subscribe_key"
+            android:layout_marginTop="8dp" />
+
         <!-- DTLS Setup Mode -->
         <TextView
             android:id="@+id/tv_dtls_setup"
@@ -171,7 +215,7 @@
             android:text="DTLS Setup Mode"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:layout_below="@id/et_password"
+            android:layout_below="@id/et_pubnub_subscribe_key"
             android:layout_marginTop="24dp" />
 
         <RadioGroup

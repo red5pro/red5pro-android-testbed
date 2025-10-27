@@ -12,13 +12,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import com.google.gson.JsonElement
 import net.red5.android.api.IRed5WebrtcClient
-import net.red5.android.api.IRed5WebrtcClient.Red5ProWebrtcEventListener
+import net.red5.android.api.IRed5WebrtcClient.Red5EventListener
 import net.red5.android.core.Red5Renderer
 import net.red5.testbed.R
 import net.red5.testbed.SettingsActivity
 
-class StreamManagerSubscribeActivity : AppCompatActivity(), Red5ProWebrtcEventListener {
+class StreamManagerSubscribeActivity : AppCompatActivity(), Red5EventListener {
     private var surfaceView: Red5Renderer? = null
     private var subscribeButton: Button? = null
     private var statusIndicatorTextView: TextView? = null
@@ -58,6 +59,7 @@ class StreamManagerSubscribeActivity : AppCompatActivity(), Red5ProWebrtcEventLi
             .setVideoRenderer(surfaceView)
             .setEventListener(this)
             .build()
+
 
         Log.d(TAG, "Subscribe client initialized")
     }
@@ -275,6 +277,30 @@ class StreamManagerSubscribeActivity : AppCompatActivity(), Red5ProWebrtcEventLi
         }
         Log.d(TAG, "License validation status: " + validated + " message: " + message)
     }
+
+    override fun onChatMessageReceived(
+        channel: String?,
+        message: JsonElement?
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onChatConnected() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onChatDisconnected() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onChatSendError(channel: String?, errorMessage: String?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onChatSendSuccess(channel: String?, timetoken: Long?) {
+        TODO("Not yet implemented")
+    }
+
 
     companion object {
         private const val TAG = "StreamManagerSubscribeActivity"

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import net.red5.testbed.basic.ChatActivity
 import net.red5.testbed.basic.StandalonePublishActivity
 import net.red5.testbed.basic.StandaloneSubscribeActivity
 import net.red5.testbed.basic.StreamManagerPublishActivity
@@ -38,6 +39,8 @@ class MainActivity : AppCompatActivity() {
         addActivity(StreamManagerSubscribeActivity::class.java, "Subscribe Stream Manager(Cloud)")
         addActivity(StandalonePublishActivity::class.java, "Publish Standalone")
         addActivity(StandaloneSubscribeActivity::class.java, "Subscribe Standalone")
+        addActivity(ChatActivity::class.java, "Chat")
+
         addActivity(SettingsActivity::class.java, "Settings")
     }
 

@@ -12,25 +12,31 @@ Build low-latency live streaming apps with the Red5 Android WebRTC SDK. Stream v
 4. [Requirements](#requirements)
 5. [Quick Start](#quick-start)
 6. [Usage](#usage)
-    - 6.1 [Publishing to Red5 Cloud and Standalone with WebRTC](#publishing-to-red5-cloud-and-standalone-with-webrtc)
-        - 6.1.1 [Step 1: Create an activity with Red5Renderer](#step-1-create-an-activity-with-red5renderer)
-        - 6.1.2 [Step 2: Request Publish Permissions](#step-2-request-publish-permissions)
-        - 6.1.3 [Step 3: Create Red5WebrtcClient object with IRed5WebrtcClient.builder()](#step-3-create-red5webrtcclient-object-with-ired5webrtcclientbuilder)
-        - 6.1.4 [Step 4: Start Preview](#step-4-start-preview)
-        - 6.1.5 [Step 5: Start Publishing](#step-5-start-publishing)
-    - 6.2 [Subscribing to Red5 Cloud and Standalone Streams with WebRTC](#subscribing-to-red5-cloud-and-standalone-streams-with-webrtc)
-        - 6.2.1 [Step 1: Create an activity with Red5Renderer](#step-1-create-an-activity-with-red5renderer-1)
-        - 6.2.2 [Step 2: Create Red5WebrtcClient object with IRed5WebrtcClient.builder()](#step-2-create-red5webrtcclient-object-with-ired5webrtcclientbuilder)
-        - 6.2.3 [Step 3: Start Subscribing](#step-3-start-subscribing)
+   - 6.1 [Publishing to Red5 Cloud and Standalone with WebRTC](#publishing-to-red5-cloud-and-standalone-with-webrtc)
+      - 6.1.1 [Step 1: Create an activity with Red5Renderer](#step-1-create-an-activity-with-red5renderer)
+      - 6.1.2 [Step 2: Request Publish Permissions](#step-2-request-publish-permissions)
+      - 6.1.3 [Step 3: Create Red5WebrtcClient object with IRed5WebrtcClient.builder()](#step-3-create-red5webrtcclient-object-with-ired5webrtcclientbuilder)
+      - 6.1.4 [Step 4: Start Preview](#step-4-start-preview)
+      - 6.1.5 [Step 5: Start Publishing](#step-5-start-publishing)
+   - 6.2 [Subscribing to Red5 Cloud and Standalone Streams with WebRTC](#subscribing-to-red5-cloud-and-standalone-streams-with-webrtc)
+      - 6.2.1 [Step 1: Create an activity with Red5Renderer](#step-1-create-an-activity-with-red5renderer-1)
+      - 6.2.2 [Step 2: Create Red5WebrtcClient object with IRed5WebrtcClient.builder()](#step-2-create-red5webrtcclient-object-with-ired5webrtcclientbuilder)
+      - 6.2.3 [Step 3: Start Subscribing](#step-3-start-subscribing)
 7. [Listening For Events](#listening-for-events)
-    - 7.1 [Event Types](#event-types)
-    - 7.2 [Connection State Handling](#connection-state-handling)
-    - 7.3 [Full Working Example](#full-working-example)
+   - 7.1 [Event Types](#event-types)
+   - 7.2 [Connection State Handling](#connection-state-handling)
+   - 7.3 [Full Working Example](#full-working-example)
 8. [Advanced Usage](#advanced-usage)
-    - 8.1 [Turn Off/On Camera](#turn-offon-camera)
-    - 8.2 [Switch Camera](#switch-camera)
-    - 8.3 [Mute/Unmute Microphone](#muteunmute-microphone)
-    - 8.4 [Picture in Picture (PiP) Mode](#picture-in-picture-pip-mode)
+   - 8.1 [Turn Off/On Camera](#turn-offon-camera)
+   - 8.2 [Switch Camera](#switch-camera)
+   - 8.3 [Mute/Unmute Microphone](#muteunmute-microphone)
+   - 8.4 [Picture in Picture (PiP) Mode](#picture-in-picture-pip-mode)
+9. [Chat Integration](#chat-integration)
+   - 9.1 [Chat Overview](#chat-overview)
+   - 9.2 [Chat Setup](#chat-setup)
+   - 9.3 [Chat Operations](#chat-operations)
+   - 9.4 [Listening for Chat Events](#listening-for-chat-events)
+   - 9.5 [Complete Example](#complete-example)
 
 ## Installation
 
@@ -43,6 +49,7 @@ implementation 'androidx.annotation:annotation:1.9.1'
 implementation 'com.google.code.gson:gson:2.13.2'
 implementation 'com.squareup.okhttp3:okhttp:5.1.0'
 implementation 'io.github.webrtc-sdk:android:137.7151.03'
+implementation 'com.pubnub:pubnub-gson:11.0.0'
 ```
 
 ## Configuration Notes
@@ -184,7 +191,7 @@ IRed5WebrtcClient webrtcClient = IRed5WebrtcClient.builder()
 
 #### Step 4: Start Preview
 
-When `webrtcClient` is created, it performs a license check. Implement `IRed5WebrtcClient.Red5ProWebrtcEventListener` in your activity and override `onLicenseValidated`:
+When `webrtcClient` is created, it performs a license check. Implement `IRed5WebrtcClient.Red5EventListener` in your activity and override `onLicenseValidated`:
 
 ```java
 @Override
@@ -257,7 +264,7 @@ webrtcClient.subscribe("myStreamName");
 
 ## Listening For Events
 
-Implement `IRed5WebrtcClient.Red5ProWebrtcEventListener` in your activity to handle SDK events.
+Implement `IRed5WebrtcClient.Red5EventListener` in your activity to handle SDK events.
 
 ### Event Types
 
@@ -384,3 +391,145 @@ public void enterPictureInPictureMode() {
     }
 }
 ```
+
+## Chat Integration
+
+The Red5 Android WebRTC SDK includes built-in chat functionality, allowing you to build infinitely scalable chat applications alongside your live streaming features.
+
+### Chat Overview
+
+The chat system uses a channel-based architecture where users can:
+- Subscribe to multiple chat channels simultaneously
+- Send and receive text or JSON messages in real-time
+- Share metadata with messages for additional context
+- Scale to handle unlimited concurrent users and messages
+
+### Chat Setup
+
+#### Configure Chat Credentials
+
+When building your `Red5WebrtcClient`, include your PubNub publish and subscribe keys. Get those from your red5 cloud panel:
+```java
+IRed5WebrtcClient webrtcClient = IRed5WebrtcClient.builder()
+    .setActivity(this)
+    .setLicenseKey(YOUR_SDK_LICENSE_KEY)
+    .setPubnubPublishKey(YOUR_PUBNUB_PUBLISH_KEY)
+    .setPubnubSubscribeKey(YOUR_PUBNUB_SUBSCRIBE_KEY)
+    .setEventListener(this)
+    .build();
+```
+
+#### Subscribe to a Channel
+
+Subscribe to a chat channel after license validation. The connection is established automatically upon subscription:
+```java
+@Override
+public void onLicenseValidated(boolean validated, String message) {
+    if (validated) {
+        String channelName = "my-chat-room";
+        webrtcClient.subscribeChatChannel(channelName);
+    }
+}
+```
+
+### Chat Operations
+
+#### Send Text Messages
+
+Send plain text messages to a channel:
+```java
+String channelName = "my-chat-room";
+String message = "Hello, everyone!";
+Object metadata = null; // Optional metadata
+
+webrtcClient.sendChatTextMessage(channelName, message, metadata);
+```
+
+#### Send JSON Messages
+
+Send structured JSON messages for more complex data:
+```java
+JsonObject jsonMessage = new JsonObject();
+jsonMessage.addProperty("text", "Hello!");
+jsonMessage.addProperty("userName", "John");
+jsonMessage.addProperty("timestamp", System.currentTimeMillis());
+
+Object metadata = Map.of("sender", "John", "type", "greeting");
+
+webrtcClient.sendChatJsonMessage(channelName, jsonMessage, metadata);
+```
+
+#### Unsubscribe from a Channel
+
+Stop receiving messages from a channel:
+```java
+webrtcClient.unsubscribeChatChannel(channelName);
+```
+
+#### Get Subscribed Channels
+
+Retrieve a list of all currently subscribed channels:
+```java
+List<String> channels = webrtcClient.getSubscribedChatChannels();
+```
+
+#### Disconnect Chat
+
+Disconnect from all chat channels:
+```java
+webrtcClient.disconnectChat();
+```
+
+#### Destroy Chat
+
+Completely destroy the chat client and release resources:
+```java
+webrtcClient.destroyChat();
+```
+Using .release() would also destroy chat.
+
+### Listening for Chat Events
+
+Implement the chat-related callbacks in `IRed5WebrtcClient.Red5EventListener`:
+```java
+@Override
+public void onChatConnected() {
+    // Called when successfully connected to PubNub
+    Toast.makeText(this, "Chat connected", Toast.LENGTH_SHORT).show();
+}
+
+@Override
+public void onChatDisconnected() {
+    // Called when disconnected from PubNub
+    Toast.makeText(this, "Chat disconnected", Toast.LENGTH_SHORT).show();
+}
+
+@Override
+public void onChatMessageReceived(String channel, JsonElement message) {
+    // Called when a message is received on a subscribed channel
+    if (message != null && message.isJsonObject()) {
+        JsonObject jsonObject = message.asJsonObject();
+        String text = jsonObject.get("text").getAsString();
+        String userName = jsonObject.get("userName").getAsString();
+        
+        Log.d("Chat", "Message from " + userName + ": " + text);
+        // Update your UI with the new message
+    }
+}
+
+@Override
+public void onChatSendSuccess(String channel, Long timetoken) {
+    // Called when a message is successfully sent
+    Log.d("Chat", "Message sent successfully with timetoken: " + timetoken);
+}
+
+@Override
+public void onChatSendError(String channel, String errorMessage) {
+    // Called when message sending fails
+    Toast.makeText(this, "Failed to send message: " + errorMessage, Toast.LENGTH_SHORT).show();
+}
+```
+
+### Complete Example
+
+For a complete working implementation of chat functionality, refer to the `ChatActivity` class in the testbed source code.
