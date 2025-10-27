@@ -3,6 +3,7 @@ package net.red5.testbed
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Xml
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -10,6 +11,12 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import net.red5.android.BuildConfig
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
+import java.io.IOException
+import java.io.InputStream
+import kotlin.io.path.name
 
 class SettingsActivity : AppCompatActivity() {
     private var etLicenseKey: EditText? = null
@@ -29,14 +36,26 @@ class SettingsActivity : AppCompatActivity() {
 
     private var sharedPreferences: SharedPreferences? = null
 
+    private var defaultLicenseKey: String? = ""
+    private var defaultStreamManagerEndpoint: String? = ""
+    private var defaultStandaloneEndpoint: String? = ""
+
+    private fun valueOr(value: String?, defaultValue: String): String {
+        return if (value == null || value == "N/A") defaultValue else value
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
 
-        initViews()
+        val config = loadTestConfig()
+        defaultLicenseKey = valueOr(config["license_key"], "")
+        defaultStreamManagerEndpoint = valueOr(config["sm_endpoint"], "")
+        defaultStandaloneEndpoint = valueOr(config["standalone_endpoint"], "")
 
+        initViews()
         loadSettings()
 
         btnSave!!.setOnClickListener(object : View.OnClickListener {
@@ -44,6 +63,40 @@ class SettingsActivity : AppCompatActivity() {
                 saveSettings()
             }
         })
+    }
+
+    private fun loadTestConfig(): Map<String, String> {
+        val config = mutableMapOf<String, String>()
+        val inputStream: InputStream = resources.openRawResource(R.raw.test)
+
+        try {
+            val parser: XmlPullParser = Xml.newPullParser()
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+            parser.setInput(inputStream, null)
+
+            var eventType = parser.eventType
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG && parser.name == "entry") {
+                    // It's an <entry> tag, so we grab the 'key' and 'value' attributes.
+                    val key = parser.getAttributeValue(null, "key")
+                    val value = parser.getAttributeValue(null, "value")
+
+                    if (key != null && value != null) {
+                        // Add the found key-value pair to our map.
+                        config[key] = value
+                    }
+                }
+                eventType = parser.next() // Move to the next XML event.
+            }
+
+        } catch (e: XmlPullParserException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            inputStream.close()
+            return config
+        }
     }
 
     private fun initViews() {
@@ -63,10 +116,21 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun loadSettings() {
-        val licenseKey: String = sharedPreferences!!.getString(KEY_LICENSE_KEY, "")!!
-        val streamManagerHost: String = sharedPreferences!!.getString(KEY_STREAM_MANAGER_HOST, "")!!
-        val standaloneServerIp: String =
-            sharedPreferences!!.getString(KEY_STANDALONE_SERVER_IP, "")!!
+        var licenseKey: String = sharedPreferences!!.getString(KEY_LICENSE_KEY,
+            defaultLicenseKey)!!
+        if (licenseKey.isEmpty()) {
+            licenseKey = defaultLicenseKey!!
+        }
+        var streamManagerHost: String = sharedPreferences!!.getString(KEY_STREAM_MANAGER_HOST,
+            defaultStreamManagerEndpoint)!!
+        if (streamManagerHost.isEmpty()) {
+            streamManagerHost = defaultStreamManagerEndpoint!!
+        }
+        var standaloneServerIp: String =
+            sharedPreferences!!.getString(KEY_STANDALONE_SERVER_IP, defaultStandaloneEndpoint)!!
+        if (standaloneServerIp.isEmpty()) {
+            standaloneServerIp = defaultStandaloneEndpoint!!
+        }
         val appName: String = sharedPreferences!!.getString(KEY_APP_NAME, "live")!!
         val nodeGroup: String = sharedPreferences!!.getString(KEY_NODE_GROUP, "default")!!
         val streamName: String = sharedPreferences!!.getString(KEY_STREAM_NAME, "myStream")!!

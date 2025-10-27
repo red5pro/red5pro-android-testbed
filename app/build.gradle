@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace 'net.red5.testbed'
 
     compileSdkVersion 36
 
@@ -13,11 +14,46 @@ android {
 
         versionCode 1
         versionName "1.0"
+    }
 
+    tasks.register('generateRed5Config') {
+        doLast {
+            // 1. Read the license key from the environment variable. Fallback for local builds.
+            def licenseKey = System.getenv("LICENSE_KEY") ?: ""
+            def smEndpoint = System.getenv("SM_ENDPOINT") ?: ""
+            def standaloneEndpoint = System.getenv("STANDALONE_ENDPOINT") ?: ""
+
+            println "LICENSE_KEY from env: $licenseKey"
+            println "SM_ENDPOINT from env: $smEndpoint"
+            println "STANDALONE_ENDPOINT from env: $standaloneEndpoint"
+
+            def templateFile = file('test.xml.template')
+            def destinationFile = file('src/main/res/raw/test.xml')
+            destinationFile.parentFile.mkdirs()
+
+            String content = templateFile.text
+            String newContent = content.replace('@@LICENSE_KEY@@', licenseKey).replace("@@SM_ENPOINT@@", smEndpoint).replace("@@STANDALONE_ENDPOINT@@", standaloneEndpoint)
+
+            destinationFile.write(newContent)
+        }
+    }
+    preBuild.dependsOn(generateRed5Config)
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    flavorDimensions "env"
+    productFlavors {
+        qa {
+            dimension "env"
+        }
+        production {
+            dimension "env"
+        }
     }
 
     buildTypes {
-
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -29,8 +65,6 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-
-    namespace 'net.red5.testbed'
     kotlinOptions {
         jvmTarget = '17'
     }
