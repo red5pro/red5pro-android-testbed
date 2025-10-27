@@ -48,16 +48,19 @@
         <activity android:name="net.red5.testbed.basic.StreamManagerSubscribeActivity"
             android:exported="true"
             android:supportsPictureInPicture="true"
-
             android:configChanges="orientation|keyboard|screenSize|smallestScreenSize|screenLayout"/>
 
-        <activity android:name="net.red5.testbed.basic.StandaloneSubscribeActivity"
+        <activity
+            android:name="net.red5.testbed.basic.StandaloneSubscribeActivity"
+            android:configChanges="orientation|keyboard|screenSize|smallestScreenSize|screenLayout"
             android:exported="true"
-            android:supportsPictureInPicture="true"
+            android:supportsPictureInPicture="true" />
 
-            android:configChanges="orientation|keyboard|screenSize|smallestScreenSize|screenLayout"/>
-
-
+        <activity
+            android:name="net.red5.testbed.basic.ChatActivity"
+            android:configChanges="orientation|keyboard|screenSize|smallestScreenSize|screenLayout"
+            android:exported="true"
+            android:supportsPictureInPicture="true" />
 
     </application>
 

@@ -18,8 +18,9 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.gson.JsonElement
 import net.red5.android.api.IRed5WebrtcClient
-import net.red5.android.api.IRed5WebrtcClient.Red5ProWebrtcEventListener
+import net.red5.android.api.IRed5WebrtcClient.Red5EventListener
 import net.red5.android.core.Red5Renderer
 import net.red5.testbed.R
 import net.red5.testbed.SettingsActivity
@@ -28,7 +29,7 @@ import net.red5.testbed.SettingsActivity
 /**
  * Simple example showing publishing to Red5 standalone
  */
-class StandalonePublishActivity : AppCompatActivity(), Red5ProWebrtcEventListener {
+class StandalonePublishActivity : AppCompatActivity(), Red5EventListener {
     private var surfaceView: Red5Renderer? = null
     private var publishButton: Button? = null
     private var switchCameraButton: Button? = null
@@ -65,6 +66,26 @@ class StandalonePublishActivity : AppCompatActivity(), Red5ProWebrtcEventListene
         }
         Log.d(TAG, "License validation status: " + validated + " message: " + message)
     }
+
+    override fun onChatMessageReceived(
+        channel: String?,
+        message: JsonElement?
+    ) {
+
+    }
+
+    override fun onChatConnected() {
+    }
+
+    override fun onChatDisconnected() {
+    }
+
+    override fun onChatSendError(channel: String?, errorMessage: String?) {
+    }
+
+    override fun onChatSendSuccess(channel: String?, timetoken: Long?) {
+    }
+
 
     private fun initViews() {
         surfaceView = findViewById<Red5Renderer>(R.id.surface_view)

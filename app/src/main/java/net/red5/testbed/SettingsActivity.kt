@@ -31,6 +31,8 @@ class SettingsActivity : AppCompatActivity() {
     private var rbActpass: RadioButton? = null
     private var rbActive: RadioButton? = null
     private var rbPassive: RadioButton? = null
+    private var etPubnubPublishKey: EditText? = null
+    private var etPubnubSubscribeKey: EditText? = null
 
     private var btnSave: Button? = null
 
@@ -113,6 +115,8 @@ class SettingsActivity : AppCompatActivity() {
         rbActpass = findViewById<RadioButton>(R.id.rb_actpass)
         rbActive = findViewById<RadioButton>(R.id.rb_active)
         rbPassive = findViewById<RadioButton>(R.id.rb_passive)
+        etPubnubPublishKey = findViewById<EditText>(R.id.et_pubnub_publish_key)
+        etPubnubSubscribeKey = findViewById<EditText>(R.id.et_pubnub_subscribe_key)
     }
 
     private fun loadSettings() {
@@ -137,6 +141,9 @@ class SettingsActivity : AppCompatActivity() {
         val username: String = sharedPreferences!!.getString(KEY_USER_NAME, "")!!
         val password: String = sharedPreferences!!.getString(KEY_PASSWORD, "")!!
         val dtlsSetup: String = sharedPreferences!!.getString(KEY_DTLS_SETUP, "actpass")!!
+        val pubnubPublishKey: String = sharedPreferences!!.getString(KEY_PUBNUB_PUBLISH_KEY, "")!!
+        val pubnubSubscribeKey: String = sharedPreferences!!.getString(KEY_PUBNUB_SUBSCRIBE_KEY, "")!!
+
 
         etLicenseKey!!.setText(licenseKey)
         etStreamManagerHost!!.setText(streamManagerHost)
@@ -146,7 +153,8 @@ class SettingsActivity : AppCompatActivity() {
         etStreamName!!.setText(streamName)
         etUserName!!.setText(username)
         etPassword!!.setText(password)
-
+        etPubnubPublishKey!!.setText(pubnubPublishKey)
+        etPubnubSubscribeKey!!.setText(pubnubSubscribeKey)
 
         when (dtlsSetup) {
             "active" -> rbActive!!.isChecked = true
@@ -165,6 +173,12 @@ class SettingsActivity : AppCompatActivity() {
         var streamName = etStreamName!!.getText().toString().trim { it <= ' ' }
         val userName = etUserName!!.getText().toString().trim { it <= ' ' }
         val password = etPassword!!.getText().toString().trim { it <= ' ' }
+        val pubnubPublishKey = etPubnubPublishKey!!.getText().toString().trim { it <= ' ' }
+        val pubnubSubscribeKey = etPubnubSubscribeKey!!.getText().toString().trim { it <= ' ' }
+
+
+
+
 
         if (appName.isEmpty()) appName = "live"
         if (nodeGroup.isEmpty()) nodeGroup = "default"
@@ -189,7 +203,8 @@ class SettingsActivity : AppCompatActivity() {
         editor.putString(KEY_STREAM_NAME, streamName)
         editor.putString(KEY_USER_NAME, userName)
         editor.putString(KEY_PASSWORD, password)
-
+        editor.putString(KEY_PUBNUB_PUBLISH_KEY, pubnubPublishKey)
+        editor.putString(KEY_PUBNUB_SUBSCRIBE_KEY, pubnubSubscribeKey)
 
         editor.putString(KEY_DTLS_SETUP, dtlsSetup)
 
@@ -215,6 +230,8 @@ class SettingsActivity : AppCompatActivity() {
         private const val KEY_PASSWORD = "password"
         private const val KEY_ENABLE_DEBUG = "enable_debug"
         private const val KEY_DTLS_SETUP = "dtls_setup"
+        private val KEY_PUBNUB_PUBLISH_KEY = "pubnub_publish_key"
+        private val KEY_PUBNUB_SUBSCRIBE_KEY = "pubnub_subscribe_key"
 
         fun getLicenseKey(context: Context): String {
             val prefs = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
@@ -264,6 +281,16 @@ class SettingsActivity : AppCompatActivity() {
         fun getDtlsSetup(context: Context): String {
             val prefs = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
             return prefs.getString(KEY_DTLS_SETUP, "actpass")!!
+        }
+
+        fun getPubnubPublishKey(context: Context): String {
+            val prefs = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            return prefs.getString(KEY_PUBNUB_PUBLISH_KEY, "")!!
+        }
+
+        fun getPubnubSubscribeKey(context: Context): String {
+            val prefs = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            return prefs.getString(KEY_PUBNUB_SUBSCRIBE_KEY, "")!!
         }
     }
 }
