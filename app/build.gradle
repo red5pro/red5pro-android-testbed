@@ -32,7 +32,7 @@ android {
             destinationFile.parentFile.mkdirs()
 
             String content = templateFile.text
-            String newContent = content.replace('@@LICENSE_KEY@@', licenseKey).replace("@@SM_ENPOINT@@", smEndpoint).replace("@@STANDALONE_ENDPOINT@@", standaloneEndpoint)
+            String newContent = content.replace('@@LICENSE_KEY@@', licenseKey).replace("@@SM_ENDPOINT@@", smEndpoint).replace("@@STANDALONE_ENDPOINT@@", standaloneEndpoint)
 
             destinationFile.write(newContent)
         }
