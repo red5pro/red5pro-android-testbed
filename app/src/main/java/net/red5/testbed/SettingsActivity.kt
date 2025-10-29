@@ -38,9 +38,9 @@ class SettingsActivity : AppCompatActivity() {
 
     private var sharedPreferences: SharedPreferences? = null
 
-    private var defaultLicenseKey: String? = ""
-    private var defaultStreamManagerEndpoint: String? = ""
-    private var defaultStandaloneEndpoint: String? = ""
+    private var defaultLicenseKey: String = ""
+    private var defaultStreamManagerEndpoint: String = ""
+    private var defaultStandaloneEndpoint: String = ""
 
     private fun valueOr(value: String?, defaultValue: String): String {
         return if (value == null || value == "N/A") defaultValue else value
@@ -120,20 +120,19 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun loadSettings() {
-        var licenseKey: String = sharedPreferences!!.getString(KEY_LICENSE_KEY,
-            defaultLicenseKey)!!
+        var licenseKey: String = defaultLicenseKey
         if (licenseKey.isEmpty()) {
-            licenseKey = defaultLicenseKey!!
+            licenseKey = sharedPreferences!!.getString(KEY_LICENSE_KEY,
+                defaultLicenseKey)!!
         }
-        var streamManagerHost: String = sharedPreferences!!.getString(KEY_STREAM_MANAGER_HOST,
-            defaultStreamManagerEndpoint)!!
+        var streamManagerHost: String = defaultStreamManagerEndpoint
         if (streamManagerHost.isEmpty()) {
-            streamManagerHost = defaultStreamManagerEndpoint!!
+            streamManagerHost = sharedPreferences!!.getString(KEY_STREAM_MANAGER_HOST,
+                defaultStreamManagerEndpoint)!!
         }
-        var standaloneServerIp: String =
-            sharedPreferences!!.getString(KEY_STANDALONE_SERVER_IP, defaultStandaloneEndpoint)!!
+        var standaloneServerIp: String = defaultStandaloneEndpoint
         if (standaloneServerIp.isEmpty()) {
-            standaloneServerIp = defaultStandaloneEndpoint!!
+            standaloneServerIp = sharedPreferences!!.getString(KEY_STANDALONE_SERVER_IP, defaultStandaloneEndpoint)!!
         }
         val appName: String = sharedPreferences!!.getString(KEY_APP_NAME, "live")!!
         val nodeGroup: String = sharedPreferences!!.getString(KEY_NODE_GROUP, "default")!!
