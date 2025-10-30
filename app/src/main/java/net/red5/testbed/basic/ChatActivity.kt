@@ -105,7 +105,7 @@ class ChatActivity : AppCompatActivity(), Red5EventListener {
 
             red5Client = IRed5WebrtcClient.builder()
                 .setActivity(this)
-                .setLicenseKey("MQZO-2CI6-XTAZ-6PLX")
+                .setLicenseKey(SettingsActivity.getLicenseKey(this))
                 // A unique chat user id.
                 // If auth is enabled for chat, You must send this userId to your application backend for token generation.
                 .setChatUserId(chatUserId)
