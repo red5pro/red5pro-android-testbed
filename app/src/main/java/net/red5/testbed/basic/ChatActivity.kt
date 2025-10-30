@@ -21,6 +21,7 @@ import net.red5.testbed.SettingsActivity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 class ChatActivity : AppCompatActivity(), Red5EventListener {
 
@@ -41,6 +42,8 @@ class ChatActivity : AppCompatActivity(), Red5EventListener {
     private var userName: String = ""
     private val messages = mutableListOf<ChatMessage>()
     private lateinit var chatAdapter: ChatAdapter
+
+    private var chatUserId = UUID.randomUUID().toString();
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,12 +106,18 @@ class ChatActivity : AppCompatActivity(), Red5EventListener {
             red5Client = IRed5WebrtcClient.builder()
                 .setActivity(this)
                 .setLicenseKey("MQZO-2CI6-XTAZ-6PLX")
+                // A unique chat user id.
+                // If auth is enabled for chat, You must send this userId to your application backend for token generation.
+                .setChatUserId(chatUserId)
+
+                // If chat authentication is enabled, set the token received from your backend server.
+                // Use red5 backend sdks to generate chat tokens: https://github.com/red5pro/red5-bcs-node
+                // Chat tokens can be also updated after client is initialized.
+                //.setChatToken("")
                 .setPubnubPublishKey(SettingsActivity.getPubnubPublishKey(this))
                 .setPubnubSubscribeKey(SettingsActivity.getPubnubSubscribeKey(this))
                 .setEventListener(this)
                 .build()
-
-
 
         } catch (e: Exception) {
             Log.e("ChatActivity", "Failed to initialize Red5 client: ${e.message}")
@@ -223,10 +232,38 @@ class ChatActivity : AppCompatActivity(), Red5EventListener {
         Log.d("ChatActivity", "License validated: $validated, message: $message")
         // Subscribe to the channel
         red5Client?.subscribeChatChannel(channelName)
+
+        // If channel auth is enabled, first get token from your backend, set it and then subscribe.
+
     }
 
     override fun onError(error: String?) {
         Log.e("ChatActivity", "Error: $error")
+    }
+
+
+    /**
+     * Sends an HTTP request to your backend server to generate a chat token.
+     *
+     * The token should be generated server-side using Red5 Backend SDKs
+     * to ensure secure authentication with Chat.
+     *
+     * Backend implementation examples and SDKs:
+     * - Node.js: https://github.com/red5pro/red5-bcs-node
+     * - Java: https://github.com/red5pro/red5-bcs-java
+     * - Go: https://github.com/red5pro/red5-bcs-go
+     *
+     * @param userId The unique identifier for the user requesting the token
+     * @param channelId The chat channel identifier the user wants to join
+     * @return The generated chat token for PubNub authentication
+     */
+    fun getChatToken(userId: String, channelId: String) {
+        //  Implement HTTP request to your backend server
+    }
+
+    // You can dynamically set(update) chat token if required.
+    fun setChatToken(chatToken: String){
+        red5Client?.setChatToken(chatToken)
     }
 
     // Unused WebRTC event listeners
