@@ -255,7 +255,7 @@ class ChatActivity : AppCompatActivity(), Red5EventListener {
      *
      * @param userId The unique identifier for the user requesting the token
      * @param channelId The chat channel identifier the user wants to join
-     * @return The generated chat token for PubNub authentication
+     * @return The generated chat token for chat authentication
      */
     fun getChatToken(userId: String, channelId: String) {
         //  Implement HTTP request to your backend server
