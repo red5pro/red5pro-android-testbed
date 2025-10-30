@@ -413,6 +413,14 @@ When building your `Red5WebrtcClient`, include your PubNub publish and subscribe
 IRed5WebrtcClient webrtcClient = IRed5WebrtcClient.builder()
     .setActivity(this)
     .setLicenseKey(YOUR_SDK_LICENSE_KEY)
+    // A unique chat user id.
+    // If auth is enabled for chat, You must send this userId to your application backend for token generation.
+    .setChatUserId(USER_ID)
+
+    // If chat authentication is enabled, set the token received from your backend server.
+    // Use red5 backend sdks to generate chat tokens: https://github.com/red5pro/red5-bcs-node
+    // Chat tokens can be also updated after client is initialized.
+    //.setChatToken("")
     .setPubnubPublishKey(YOUR_PUBNUB_PUBLISH_KEY)
     .setPubnubSubscribeKey(YOUR_PUBNUB_SUBSCRIBE_KEY)
     .setEventListener(this)
