@@ -143,10 +143,33 @@ class StreamManagerPublishActivity : AppCompatActivity(), Red5EventListener {
     }
 
     private fun initializeWebrtcClient() {
+
+        var dataChanneListener = object : IRed5WebrtcClient.DataChannelListener {
+            override fun onDataChannelOpen() {
+                Log.i(TAG,"Data channel open")
+            }
+
+            override fun onDataChannelClosed() {
+                Log.i(TAG,"Data channel closed")
+            }
+
+            override fun onDataChannelMessage(message: String?) {
+                Log.i(TAG, "Data channel message received: $message");
+            }
+
+            override fun onDataChannelMessage(data: ByteArray?) {
+                Log.i(TAG, "Data channel message as byte arr received");
+            }
+
+            override fun onDataChannelError(error: String?) {
+                Log.i(TAG, "Data channel error");
+            }
+        }
+
         webrtcClient = IRed5WebrtcClient.builder()
             .setActivity(this)
             .setLicenseKey(SettingsActivity.getLicenseKey(this))
-
+            .setDataChannelListener(dataChanneListener)
             .setStreamManagerHost(SettingsActivity.getStreamManagerHost(this))
             .setStreamName(SettingsActivity.getStreamName(this))
             .setUserName(SettingsActivity.getUserName(this))
