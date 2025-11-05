@@ -19,12 +19,11 @@ import net.red5.android.core.Red5Renderer
 import net.red5.testbed.R
 import net.red5.testbed.SettingsActivity
 import org.json.JSONObject
-import org.webrtc.VideoTrack
 
 class ConferenceActivity : AppCompatActivity(), Red5EventListener {
 
     private var red5Client: IRed5WebrtcClient? = null
-    public var TAG = "ConferenceActivity"
+    var TAG = "ConferenceActivity"
     private lateinit var joinLayout: LinearLayout
     private lateinit var roomIdInput: EditText
     private lateinit var userNameInput: EditText
@@ -58,8 +57,8 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
 
             }
 
-            override fun onJoinRoomFailed(message: String?) {
-
+            override fun onJoinRoomFailed(statusCode:Int, message: String?) {
+                Toast.makeText(this@ConferenceActivity, "Join room failed: $message",Toast.LENGTH_SHORT).show()
             }
 
             override fun onParticipantJoined(
@@ -237,18 +236,6 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
     }
 
 
-
-    private fun removeParticipant(userId: String) {
-        runOnUiThread {
-            val index = participants.indexOfFirst { it.userId == userId }
-            if (index != -1) {
-                participants.removeAt(index)
-                participantsAdapter.notifyItemRemoved(index)
-            }
-        }
-    }
-
-    // Unused event listeners for now
     override fun onPublishStarted() {}
     override fun onPublishStopped() {}
     override fun onPublishFailed(error: String?) {}
@@ -257,6 +244,7 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
     override fun onSubscribeFailed(error: String?) {}
     override fun onIceConnectionStateChanged(state: IRed5WebrtcClient.IceConnectionState?) {}
     override fun onConnectionStateChanged(state: IRed5WebrtcClient.PeerConnectionState?) {}
+
     override fun onPreviewStarted() {
         var userId = userName + "_"+getRandomString(6)
         var metaData = JSONObject()
