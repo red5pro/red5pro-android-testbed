@@ -41,12 +41,19 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
     private lateinit var localUserNameText: TextView
     private lateinit var participantsRecyclerView: RecyclerView
     private lateinit var leaveButton: Button
+    private lateinit var switchCameraButton: Button
+    private lateinit var toggleMicButton: Button
+    private lateinit var toggleCameraButton: Button
     private lateinit var roomIdText: TextView
     private lateinit var participantCountText: TextView
     private lateinit var roomIdParticipantContainer: LinearLayout
+    private lateinit var localPreviewBlackOverlay: RelativeLayout
 
     private var roomId: String = ""
     private var userName: String = ""
+    private var isMicEnabled = true
+    private var isCameraEnabled = true
+
     private val participants = mutableListOf<RemoteParticipant>()
     private lateinit var participantsAdapter: ParticipantsAdapter
     private lateinit var conferenceListener: IRed5WebrtcClient.ConferenceListener
@@ -172,6 +179,14 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
         localUserNameText = findViewById(R.id.localUserNameText)
         participantsRecyclerView = findViewById(R.id.participantsRecyclerView)
         leaveButton = findViewById(R.id.leaveButton)
+        switchCameraButton = findViewById(R.id.lobbySwitchCameraButton)
+        toggleCameraButton = findViewById(R.id.lobbyToggleCameraButton)
+        toggleMicButton = findViewById(R.id.lobbyToggleMicButton)
+        localPreviewBlackOverlay = findViewById(R.id.lobbyLocalPreviewBlackOverlay)
+
+        setupConferenceButtonListeners()
+
+
     }
 
     private fun setupListeners() {
@@ -202,13 +217,29 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
 
     private fun setupRecyclerView() {
         participantsAdapter = ParticipantsAdapter(participants)
-        participantsRecyclerView.layoutManager = GridLayoutManager(this, 2)
+       // participantsRecyclerView.layoutManager = GridLayoutManager(this, 2)
         participantsRecyclerView.adapter = participantsAdapter
 
 
-        participantsRecyclerView.setItemViewCacheSize(0)
+        // Completely disable recycling
+        participantsRecyclerView.setItemViewCacheSize(20) // Hold all items in cache
+        participantsRecyclerView.setHasFixedSize(true)
         participantsRecyclerView.recycledViewPool.setMaxRecycledViews(0, 0)
 
+        // Disable nested scrolling which can cause surface issues
+        participantsRecyclerView.isNestedScrollingEnabled = false
+
+        // Disable smooth scrolling animations
+        participantsRecyclerView.overScrollMode = View.OVER_SCROLL_NEVER
+
+        // Use a custom LayoutManager that disables predictive animations
+        val layoutManager = object : GridLayoutManager(this, 2) {
+            override fun supportsPredictiveItemAnimations(): Boolean = false
+        }
+        participantsRecyclerView.layoutManager = layoutManager
+
+        // Disable all item animations
+        participantsRecyclerView.itemAnimator = null
     }
 
     fun initSdk(){
@@ -305,6 +336,52 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
             joinLayout.visibility = View.GONE
             conferenceLayout.visibility = View.VISIBLE
             localUserNameText.text = userName
+
+            switchCameraButton = findViewById(R.id.switchCameraButton)
+            toggleCameraButton = findViewById(R.id.toggleCameraButton)
+            toggleMicButton = findViewById(R.id.toggleMicButton)
+            localPreviewBlackOverlay = findViewById(R.id.localPreviewBlackOverlay)
+            setupConferenceButtonListeners()
+
+        }
+    }
+
+    private fun setupConferenceButtonListeners() {
+        switchCameraButton.setOnClickListener {
+            red5Client?.switchCamera()
+        }
+
+        toggleMicButton.setOnClickListener {
+            if (red5Client != null) {
+                isMicEnabled = !isMicEnabled
+                red5Client?.toggleSendAudio(isMicEnabled)
+
+                // Update button text and color
+                toggleMicButton.text = if (isMicEnabled) "Mic On" else "Mic Off"
+                toggleMicButton.backgroundTintList = resources.getColorStateList(
+                    if (isMicEnabled) android.R.color.holo_green_dark else android.R.color.holo_red_dark,
+                    theme
+                )
+            }
+        }
+
+        toggleCameraButton.setOnClickListener {
+            if (red5Client != null) {
+                isCameraEnabled = !isCameraEnabled
+                red5Client?.toggleSendVideo(isCameraEnabled)
+
+                if (isCameraEnabled) {
+                    localPreviewBlackOverlay.visibility = View.GONE
+                } else {
+                    localPreviewBlackOverlay.visibility = View.VISIBLE
+                }
+
+                toggleCameraButton.text = if (isCameraEnabled) "Cam On" else "Cam Off"
+                toggleCameraButton.backgroundTintList = resources.getColorStateList(
+                    if (isCameraEnabled) android.R.color.holo_green_dark else android.R.color.holo_red_dark,
+                    theme
+                )
+            }
         }
     }
 

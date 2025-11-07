@@ -13,7 +13,7 @@
         android:orientation="vertical"
         android:padding="24dp"
         android:gravity="center"
-        android:layout_centerInParent="true">
+        >
 
         <TextView
             android:layout_width="wrap_content"
@@ -24,12 +24,66 @@
             android:textColor="#333333"
             android:layout_marginBottom="32dp"/>
 
-        <net.red5.android.core.Red5Renderer
-            android:id="@+id/localVideoRendererForPreview"
+        <RelativeLayout
+            android:id="@+id/lobbyPreviewContainer"
             android:layout_width="200dp"
-            android:layout_height="225dp">
+            android:layout_height="250dp">
+            <RelativeLayout
+                android:visibility="gone"
+                android:translationZ="10dp"
+                android:id="@+id/lobbyLocalPreviewBlackOverlay"
+                android:background="#000"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-        </net.red5.android.core.Red5Renderer>
+                <TextView
+                    android:textSize="16sp"
+                    android:layout_centerInParent="true"
+                    android:textColor="#ffffff"
+                    android:text="Camera Off"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                </TextView>
+
+            </RelativeLayout>
+            <net.red5.android.core.Red5Renderer
+                android:id="@+id/localVideoRendererForPreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            </net.red5.android.core.Red5Renderer>
+
+        </RelativeLayout>
+        <LinearLayout
+            android:id="@+id/lobbyButtonContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/lobbyToggleCameraButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Camera On"
+                android:textStyle="bold"
+
+                />
+            <Button
+                android:id="@+id/lobbyToggleMicButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mic On"
+                android:textStyle="bold"
+                />
+            <Button
+                android:id="@+id/lobbySwitchCameraButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Switch"
+                android:textStyle="bold"
+                />
+
+        </LinearLayout>
+
 
         <TextView
             android:layout_width="match_parent"
@@ -137,13 +191,33 @@
 
         <!-- Local Video Section -->
         <RelativeLayout
+            android:translationZ="100dp"
             android:id="@+id/localVideoSection"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_width="150dp"
+            android:layout_height="225dp"
             android:layout_below="@id/statusInfoContainer"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="8dp">
+
+            <RelativeLayout
+                android:visibility="gone"
+                android:translationZ="10dp"
+                android:id="@+id/localPreviewBlackOverlay"
+                android:background="#000"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_centerInParent="true"
+                    android:textColor="#fff"
+                    android:textSize="16sp"
+                    android:text="Camera Off"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                </TextView>
+
+            </RelativeLayout>
 
             <net.red5.android.core.Red5Renderer
                 android:id="@+id/localVideoRenderer"
@@ -155,6 +229,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="You"
+                android:translationZ="11dp"
                 android:textSize="14sp"
                 android:textColor="#FFFFFF"
                 android:background="#80000000"
@@ -169,24 +244,49 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/participantsRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@id/localVideoSection"
-            android:layout_above="@id/leaveButton"
+            android:layout_above="@id/conferenceButtonContainer"
             android:padding="8dp"
-            android:clipToPadding="false"
             tools:listitem="@layout/item_participant"/>
 
-        <!-- Leave Button -->
-        <Button
-            android:id="@+id/leaveButton"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Leave Conference"
-            android:textSize="16sp"
-            android:textStyle="bold"
+        <LinearLayout
+            android:id="@+id/conferenceButtonContainer"
             android:layout_alignParentBottom="true"
-            android:layout_margin="16dp"
-            android:backgroundTint="#F44336"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/toggleCameraButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cam On"
+                android:textSize="16sp"
+                android:textStyle="bold"
+
+                />
+            <Button
+                android:id="@+id/toggleMicButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mic On"
+                android:textStyle="bold"
+                />
+            <Button
+                android:id="@+id/switchCameraButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Switch"
+                android:textStyle="bold"
+                />
+            <Button
+                android:id="@+id/leaveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Leave"
+                android:textStyle="bold"
+                android:backgroundTint="#F44336"/>
+        </LinearLayout>
+
 
     </RelativeLayout>
 
