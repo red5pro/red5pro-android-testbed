@@ -1,19 +1,17 @@
 package net.red5.testbed.basic
 
-
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.JsonElement
 import net.red5.android.api.IRed5WebrtcClient
 import net.red5.android.api.IRed5WebrtcClient.Red5EventListener
@@ -22,8 +20,7 @@ import net.red5.android.core.model.Red5ConferenceParticipant
 import net.red5.testbed.R
 import net.red5.testbed.SettingsActivity
 import org.json.JSONObject
-import org.webrtc.RendererCommon
-
+import kotlin.math.min
 
 class ConferenceActivity : AppCompatActivity(), Red5EventListener {
 
@@ -39,7 +36,7 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
     private lateinit var localVideoRendererForPreview: Red5Renderer
     private lateinit var localVideoRenderer: Red5Renderer
     private lateinit var localUserNameText: TextView
-    private lateinit var participantsRecyclerView: RecyclerView
+    private lateinit var participantsGridLayout: GridLayout
     private lateinit var leaveButton: Button
     private lateinit var switchCameraButton: Button
     private lateinit var toggleMicButton: Button
@@ -48,15 +45,23 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
     private lateinit var participantCountText: TextView
     private lateinit var roomIdParticipantContainer: LinearLayout
     private lateinit var localPreviewBlackOverlay: RelativeLayout
+    private lateinit var prevPageButton: Button
+    private lateinit var nextPageButton: Button
+    private lateinit var pageIndicatorText: TextView
+    private lateinit var paginationContainer: LinearLayout
 
     private var roomId: String = ""
     private var userName: String = ""
     private var isMicEnabled = true
     private var isCameraEnabled = true
 
-    private val participants = mutableListOf<RemoteParticipant>()
-    private lateinit var participantsAdapter: ParticipantsAdapter
+    private val participants = mutableMapOf<String, ParticipantViewHolder>()
+    private val participantsList = mutableListOf<String>() // Ordered list of participant IDs
     private lateinit var conferenceListener: IRed5WebrtcClient.ConferenceListener
+
+    // Pagination
+    private var currentPage = 0
+    private val participantsPerPage = 4
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,61 +69,46 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
 
         initViews()
         setupListeners()
-        setupRecyclerView()
+        setupGridLayout()
 
-        conferenceListener = object : IRed5WebrtcClient.ConferenceListener{
-            override fun onJoinRoomSuccess(roomId: String, conferenceParticipants: ArrayList<Red5ConferenceParticipant>  ) {
-
+        conferenceListener = object : IRed5WebrtcClient.ConferenceListener {
+            override fun onJoinRoomSuccess(
+                roomId: String,
+                conferenceParticipants: ArrayList<Red5ConferenceParticipant>
+            ) {
                 updateStatus("Connected", "#4CAF50")
                 roomIdParticipantContainer.visibility = View.VISIBLE
-                roomIdText.text= "Room ID: " + roomId
-
+                roomIdText.text = "Room ID: $roomId"
             }
 
-            override fun onJoinRoomFailed(statusCode:Int, message: String?) {
-                Toast.makeText(this@ConferenceActivity, "Join room failed: $message",Toast.LENGTH_SHORT).show()
+            override fun onJoinRoomFailed(statusCode: Int, message: String?) {
+                Toast.makeText(
+                    this@ConferenceActivity,
+                    "Join room failed: $message",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
             override fun onParticipantJoined(
                 uid: String?,
-                metaData:String,
+                metaData: String,
                 videoEnabled: Boolean,
                 audioEnabled: Boolean,
                 renderer: Red5Renderer
             ) {
                 runOnUiThread {
-                    val participant = RemoteParticipant(uid!!, metaData, videoEnabled, audioEnabled, renderer)
-                    participants.add(participant)
-                    participantsAdapter.notifyItemInserted(participants.size - 1)
-
-
-
-                   participantCountText.text ="Total Participants: " + (participants.size + 1).toString()
-
-
+                    addParticipant(uid!!, metaData, videoEnabled, audioEnabled, renderer)
+                    updateParticipantCount()
+                    refreshCurrentPage()
                 }
             }
 
-            override fun onParticipantLeft(uid:String) {
+            override fun onParticipantLeft(uid: String) {
                 runOnUiThread {
-                    val index = participants.indexOfFirst { it.userId == uid }
-                    if (index != -1) {
-                        val participant = participants[index]
-
-                        (participant.renderer.parent as? android.view.ViewGroup)?.removeView(participant.renderer)
-
-                        participants.removeAt(index)
-
-                        participantsAdapter.notifyItemRemoved(index)
-
-                        participantCountText.text ="Total Participants: " + (participants.size + 1).toString()
-
-                        Log.d(TAG, "Removed participant: $uid from RecyclerView")
-                    } else {
-                        Log.w(TAG, "Participant not found in list: $uid")
-                    }
+                    removeParticipant(uid)
+                    updateParticipantCount()
+                    refreshCurrentPage()
                 }
-
             }
 
             override fun onParticipantMediaUpdate(
@@ -127,47 +117,37 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
                 audioEnabled: Boolean,
                 timestamp: Long
             ) {
+                runOnUiThread {
+                    val holder = participants[uid]
+                    holder?.let {
+                        // Update mic icon
+                        if (audioEnabled) {
+                            it.micIcon.setImageResource(R.drawable.mic_on_icon)
+                        } else {
+                            it.micIcon.setImageResource(R.drawable.mic_off_icon)
+                        }
 
-                val index = participants.indexOfFirst { it.userId == uid }
-
-
-                var remoteParticipant = participants[index]
-                remoteParticipant.videoEnabled = videoEnabled
-                remoteParticipant.audioEnabled = audioEnabled
-
-                // Update only the mic icon without rebinding the entire view
-                val viewHolder = participantsRecyclerView.findViewHolderForAdapterPosition(index)
-                        as? ParticipantsAdapter.ParticipantViewHolder
-
-                viewHolder?.let {
-                    if (audioEnabled) {
-                        it.micIcon.setImageResource(R.drawable.mic_on_icon)
-                    } else {
-                        it.micIcon.setImageResource(R.drawable.mic_off_icon)
+                        // Update camera visibility
+                        if (videoEnabled) {
+                            it.cameraOffLayout.visibility = View.GONE
+                        } else {
+                            it.cameraOffLayout.visibility = View.VISIBLE
+                        }
                     }
-
-                    if(videoEnabled){
-                        it.cameraOffLayout.visibility = View.GONE
-                    }else{
-                        it.cameraOffLayout.visibility = View.VISIBLE
-                    }
-
                 }
-
             }
         }
 
         initSdk()
-
     }
 
     private fun initViews() {
         joinLayout = findViewById(R.id.joinLayout)
         roomIdInput = findViewById(R.id.roomIdInput)
         roomIdInput.setText("testroom")
-        roomIdText = findViewById<TextView?>(R.id.roomIdText)
-        participantCountText = findViewById<TextView?>(R.id.participantCountText)
-        roomIdParticipantContainer = findViewById<LinearLayout>(R.id.roomIdParticipantContainer)
+        roomIdText = findViewById(R.id.roomIdText)
+        participantCountText = findViewById(R.id.participantCountText)
+        roomIdParticipantContainer = findViewById(R.id.roomIdParticipantContainer)
         userNameInput = findViewById(R.id.userNameInput)
         userNameInput.setText("yunus_android")
         joinButton = findViewById(R.id.joinButton)
@@ -177,16 +157,18 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
         localVideoRendererForPreview = findViewById(R.id.localVideoRendererForPreview)
         localVideoRenderer = findViewById(R.id.localVideoRenderer)
         localUserNameText = findViewById(R.id.localUserNameText)
-        participantsRecyclerView = findViewById(R.id.participantsRecyclerView)
+        participantsGridLayout = findViewById(R.id.participantsGridLayout)
         leaveButton = findViewById(R.id.leaveButton)
         switchCameraButton = findViewById(R.id.lobbySwitchCameraButton)
         toggleCameraButton = findViewById(R.id.lobbyToggleCameraButton)
         toggleMicButton = findViewById(R.id.lobbyToggleMicButton)
         localPreviewBlackOverlay = findViewById(R.id.lobbyLocalPreviewBlackOverlay)
+        prevPageButton = findViewById(R.id.prevPageButton)
+        nextPageButton = findViewById(R.id.nextPageButton)
+        pageIndicatorText = findViewById(R.id.pageIndicatorText)
+        paginationContainer = findViewById(R.id.paginationContainer)
 
         setupConferenceButtonListeners()
-
-
     }
 
     private fun setupListeners() {
@@ -213,59 +195,212 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
         leaveButton.setOnClickListener {
             leaveConference()
         }
-    }
 
-    private fun setupRecyclerView() {
-        participantsAdapter = ParticipantsAdapter(participants)
-       // participantsRecyclerView.layoutManager = GridLayoutManager(this, 2)
-        participantsRecyclerView.adapter = participantsAdapter
-
-
-        // Completely disable recycling
-        participantsRecyclerView.setItemViewCacheSize(20) // Hold all items in cache
-        participantsRecyclerView.setHasFixedSize(true)
-        participantsRecyclerView.recycledViewPool.setMaxRecycledViews(0, 0)
-
-        // Disable nested scrolling which can cause surface issues
-        participantsRecyclerView.isNestedScrollingEnabled = false
-
-        // Disable smooth scrolling animations
-        participantsRecyclerView.overScrollMode = View.OVER_SCROLL_NEVER
-
-        // Use a custom LayoutManager that disables predictive animations
-        val layoutManager = object : GridLayoutManager(this, 2) {
-            override fun supportsPredictiveItemAnimations(): Boolean = false
+        prevPageButton.setOnClickListener {
+            if (currentPage > 0) {
+                currentPage--
+                showCurrentPage()
+            }
         }
-        participantsRecyclerView.layoutManager = layoutManager
 
-        // Disable all item animations
-        participantsRecyclerView.itemAnimator = null
+        nextPageButton.setOnClickListener {
+            val totalPages = getTotalPages()
+            if (currentPage < totalPages - 1) {
+                currentPage++
+                showCurrentPage()
+            }
+        }
     }
 
-    fun initSdk(){
+    private fun setupGridLayout() {
+        participantsGridLayout.columnCount = 2
+        participantsGridLayout.rowCount = 2
+    }
 
+    private fun addParticipant(
+        userId: String,
+        metaData: String,
+        videoEnabled: Boolean,
+        audioEnabled: Boolean,
+        renderer: Red5Renderer
+    ) {
+        // Inflate the participant item layout
+        val participantView = layoutInflater.inflate(
+            R.layout.item_participant,
+            participantsGridLayout,
+            false
+        )
+
+        // Get references to views
+        val userIdText: TextView = participantView.findViewById(R.id.participantUserId)
+        val micIcon: ImageView = participantView.findViewById(R.id.participantMicIcon)
+        val cameraOffLayout: RelativeLayout = participantView.findViewById(R.id.participantCameraOffLayout)
+        val videoRendererPlaceholder: Red5Renderer = participantView.findViewById(R.id.participantVideoRenderer)
+
+        // Set user ID
+        userIdText.text = userId
+
+        // Remove renderer from any previous parent
+        (renderer.parent as? android.view.ViewGroup)?.removeView(renderer)
+
+        // Replace placeholder with actual renderer
+        val container = videoRendererPlaceholder.parent as? android.view.ViewGroup
+        if (container != null) {
+            val index = container.indexOfChild(videoRendererPlaceholder)
+            container.removeViewAt(index)
+
+            val layoutParams = videoRendererPlaceholder.layoutParams
+            renderer.layoutParams = layoutParams
+            container.addView(renderer, index)
+        }
+
+        // Set initial mic icon state
+        if (audioEnabled) {
+            micIcon.setImageResource(R.drawable.mic_on_icon)
+        } else {
+            micIcon.setImageResource(R.drawable.mic_off_icon)
+        }
+
+        // Set initial camera state
+        if (videoEnabled) {
+            cameraOffLayout.visibility = View.GONE
+        } else {
+            cameraOffLayout.visibility = View.VISIBLE
+        }
+
+        // Calculate tile size for 2 columns
+        val displayMetrics = resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        val margins = (8 * 2 * 2) * displayMetrics.density.toInt()
+        val tileWidth = (screenWidth - margins) / 2
+        val tileHeight = tileWidth
+
+        // Set GridLayout params for the participant view
+        val params = GridLayout.LayoutParams()
+        params.width = tileWidth
+        params.height = tileHeight
+        params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1)
+        params.setMargins(8, 8, 8, 8)
+        participantView.layoutParams = params
+
+        // Store the holder
+        val holder = ParticipantViewHolder(
+            participantView,
+            renderer,
+            userIdText,
+            micIcon,
+            cameraOffLayout
+        )
+        participants[userId] = holder
+        participantsList.add(userId)
+
+        Log.d(TAG, "Added participant: $userId")
+    }
+
+    private fun removeParticipant(userId: String) {
+        val holder = participants[userId]
+        if (holder != null) {
+            // Remove renderer from its parent
+            (holder.renderer.parent as? android.view.ViewGroup)?.removeView(holder.renderer)
+
+            // Remove from grid if currently displayed
+            participantsGridLayout.removeView(holder.itemView)
+
+            // Remove from data structures
+            participants.remove(userId)
+            participantsList.remove(userId)
+
+            // Adjust current page if needed
+            val totalPages = getTotalPages()
+            if (totalPages > 0 && currentPage >= totalPages) {
+                currentPage = totalPages - 1
+            }
+
+            Log.d(TAG, "Removed participant: $userId")
+        } else {
+            Log.w(TAG, "Participant not found: $userId")
+        }
+    }
+
+    private fun getTotalPages(): Int {
+        val totalParticipants = participantsList.size
+        return if (totalParticipants == 0) 1 else ((totalParticipants + participantsPerPage - 1) / participantsPerPage)
+    }
+
+    private fun showCurrentPage() {
+        // Clear the grid
+        participantsGridLayout.removeAllViews()
+
+        // Calculate range for current page
+        val start = currentPage * participantsPerPage
+        val end = min(start + participantsPerPage, participantsList.size)
+
+        // Add participants for current page
+        for (i in start until end) {
+            val userId = participantsList[i]
+            val holder = participants[userId]
+            holder?.let {
+                participantsGridLayout.addView(it.itemView)
+            }
+        }
+
+        // Update pagination controls
+        updatePaginationControls()
+
+        Log.d(TAG, "Showing page ${currentPage + 1} of ${getTotalPages()}")
+    }
+
+    private fun refreshCurrentPage() {
+        // If we're beyond the last page, go to last page
+        val totalPages = getTotalPages()
+        if (currentPage >= totalPages && totalPages > 0) {
+            currentPage = totalPages - 1
+        }
+        showCurrentPage()
+    }
+
+    private fun updatePaginationControls() {
+        val totalPages = getTotalPages()
+        val totalParticipants = participantsList.size
+
+        // Show/hide pagination container
+        if (totalParticipants > participantsPerPage) {
+            paginationContainer.visibility = View.VISIBLE
+        } else {
+            paginationContainer.visibility = View.GONE
+        }
+
+        // Update page indicator
+        pageIndicatorText.text = "Page ${currentPage + 1} of $totalPages"
+
+        // Enable/disable buttons
+        prevPageButton.isEnabled = currentPage > 0
+        nextPageButton.isEnabled = currentPage < totalPages - 1
+
+        // Update button appearance
+        prevPageButton.alpha = if (prevPageButton.isEnabled) 1.0f else 0.5f
+        nextPageButton.alpha = if (nextPageButton.isEnabled) 1.0f else 0.5f
+    }
+
+    private fun updateParticipantCount() {
+        participantCountText.text = "Total Participants: ${participants.size + 1}"
+    }
+
+    fun initSdk() {
         red5Client = IRed5WebrtcClient.builder()
             .setActivity(this)
-            .setDataChannelListener(object : IRed5WebrtcClient.DataChannelListener{
-                override fun onDataChannelOpen() {
+            .setDataChannelListener(object : IRed5WebrtcClient.DataChannelListener {
+                override fun onDataChannelOpen() {}
 
-                }
-
-                override fun onDataChannelClosed() {
-
-                }
+                override fun onDataChannelClosed() {}
 
                 override fun onDataChannelMessage(message: String?) {
                     Log.i(TAG, "Data channel message received: $message")
                 }
 
-                override fun onDataChannelMessage(data: ByteArray?) {
+                override fun onDataChannelMessage(data: ByteArray?) {}
 
-                }
-
-                override fun onDataChannelError(error: String?) {
-
-                }
+                override fun onDataChannelError(error: String?) {}
             })
             .setStreamManagerHost(SettingsActivity.getStreamManagerHost(this))
             .setLicenseKey(SettingsActivity.getLicenseKey(this))
@@ -287,26 +422,18 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
             .build()
 
         red5Client?.startPreview()
-
     }
-
 
     private fun joinConference() {
         updateStatus("Joining...", "#FFA500")
-
         showConferenceLayout()
-
         red5Client?.setVideoRenderer(localVideoRenderer)
 
-
-        var userId = userName + "_"+getRandomString(6)
-        var metaData = JSONObject()
+        val userId = userName + "_" + getRandomString(6)
+        val metaData = JSONObject()
         metaData.put("name", userName)
 
         red5Client?.join(roomId, userId, "", "publisher", metaData.toString())
-
-        // Toast.makeText(this, "Joined room: $roomId", Toast.LENGTH_SHORT).show()
-
     }
 
     private fun leaveConference() {
@@ -316,8 +443,12 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
         runOnUiThread {
             conferenceLayout.visibility = View.GONE
             joinLayout.visibility = View.VISIBLE
+
+            // Clear all participant views
+            participantsGridLayout.removeAllViews()
             participants.clear()
-            participantsAdapter.notifyDataSetChanged()
+            participantsList.clear()
+            currentPage = 0
         }
 
         finish()
@@ -342,7 +473,6 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
             toggleMicButton = findViewById(R.id.toggleMicButton)
             localPreviewBlackOverlay = findViewById(R.id.localPreviewBlackOverlay)
             setupConferenceButtonListeners()
-
         }
     }
 
@@ -356,7 +486,6 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
                 isMicEnabled = !isMicEnabled
                 red5Client?.toggleSendAudio(isMicEnabled)
 
-                // Update button text and color
                 toggleMicButton.text = if (isMicEnabled) "Mic On" else "Mic Off"
                 toggleMicButton.backgroundTintList = resources.getColorStateList(
                     if (isMicEnabled) android.R.color.holo_green_dark else android.R.color.holo_red_dark,
@@ -385,7 +514,6 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
         }
     }
 
-
     override fun onPublishStarted() {}
     override fun onPublishStopped() {}
     override fun onPublishFailed(error: String?) {}
@@ -394,34 +522,26 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
     override fun onSubscribeFailed(error: String?) {}
     override fun onIceConnectionStateChanged(state: IRed5WebrtcClient.IceConnectionState?) {}
     override fun onConnectionStateChanged(state: IRed5WebrtcClient.PeerConnectionState?) {}
-
-    override fun onPreviewStarted() {
-
-
-    }
+    override fun onPreviewStarted() {}
     override fun onPreviewStopped() {}
+
     override fun onLicenseValidated(validated: Boolean, message: String?) {
-        if(validated){
-
+        if (validated) {
             red5Client?.startPreview()
-
-
         }
-
-
-
     }
+
     override fun onError(error: String?) {
         Log.e("ConferenceActivity", "Error: $error")
     }
+
     override fun onChatConnected() {}
     override fun onChatDisconnected() {}
     override fun onChatMessageReceived(channel: String?, message: JsonElement?) {}
     override fun onChatSendSuccess(channel: String?, timetoken: Long?) {}
     override fun onChatSendError(channel: String?, errorMessage: String?) {}
 
-
-    fun getRandomString(length: Int) : String {
+    fun getRandomString(length: Int): String {
         val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
         return (1..length)
             .map { allowedChars.random() }
@@ -430,7 +550,6 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
 
     override fun onDestroy() {
         super.onDestroy()
-
     }
 
     override fun onBackPressed() {
@@ -438,80 +557,11 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
         super.onBackPressed()
     }
 
-    data class RemoteParticipant(
-        val userId: String,
-        var metaData:String,
-        var videoEnabled: Boolean,
-        var audioEnabled: Boolean,
-        val renderer: Red5Renderer
+    data class ParticipantViewHolder(
+        val itemView: View,
+        val renderer: Red5Renderer,
+        val userIdText: TextView,
+        val micIcon: ImageView,
+        val cameraOffLayout: RelativeLayout
     )
-
-    inner class ParticipantsAdapter(private val participants: List<RemoteParticipant>) :
-        RecyclerView.Adapter<ParticipantsAdapter.ParticipantViewHolder>() {
-        private val attachedRenderers = mutableSetOf<String>()
-
-        inner class ParticipantViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val videoRenderer: Red5Renderer = itemView.findViewById(R.id.participantVideoRenderer)
-            val userIdText: TextView = itemView.findViewById(R.id.participantUserId)
-            val micIcon: ImageView = itemView.findViewById(R.id.participantMicIcon)
-            val cameraOffLayout: RelativeLayout = itemView.findViewById(R.id.participantCameraOffLayout)
-        }
-
-        override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): ParticipantViewHolder {
-            val view = android.view.LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_participant, parent, false)
-            return ParticipantViewHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: ParticipantViewHolder, position: Int) {
-            val participant = participants[position]
-
-            // Always update text and mic icon
-            holder.userIdText.text = participant.userId
-
-
-            // Only attach renderer once
-            if (!attachedRenderers.contains(participant.userId)) {
-                // Remove the participant's renderer from its current parent (if any)
-                (participant.renderer.parent as? android.view.ViewGroup)?.removeView(participant.renderer)
-
-                // Get the container that holds the placeholder renderer
-                val container = holder.videoRenderer.parent as? android.view.ViewGroup
-
-                if (container != null) {
-                    // Find the index of the placeholder renderer
-                    val index = container.indexOfChild(holder.videoRenderer)
-
-                    // Remove the placeholder renderer
-                    container.removeViewAt(index)
-
-                    // Add the actual initialized renderer at the same position
-                    val layoutParams = holder.videoRenderer.layoutParams
-                    participant.renderer.layoutParams = layoutParams
-                    container.addView(participant.renderer, index)
-
-                    if (participant.audioEnabled) {
-                        holder.micIcon.setImageResource(R.drawable.mic_on_icon)
-                    } else {
-                        holder.micIcon.setImageResource(R.drawable.mic_off_icon)
-                    }
-
-                    if(participant.videoEnabled){
-                        holder.cameraOffLayout.visibility = View.GONE
-                    }else{
-                        holder.cameraOffLayout.visibility = View.VISIBLE
-                    }
-                    attachedRenderers.add(participant.userId)
-
-                }
-            }
-        }
-
-        override fun onViewRecycled(holder: ParticipantViewHolder) {
-            super.onViewRecycled(holder)
-
-        }
-
-        override fun getItemCount(): Int = participants.size
-    }
 }

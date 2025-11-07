@@ -12,8 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="24dp"
-        android:gravity="center"
-        >
+        android:gravity="center">
 
         <TextView
             android:layout_width="wrap_content"
@@ -42,17 +41,13 @@
                     android:textColor="#ffffff"
                     android:text="Camera Off"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                </TextView>
+                    android:layout_height="wrap_content" />
 
             </RelativeLayout>
             <net.red5.android.core.Red5Renderer
                 android:id="@+id/localVideoRendererForPreview"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-            </net.red5.android.core.Red5Renderer>
+                android:layout_height="match_parent" />
 
         </RelativeLayout>
         <LinearLayout
@@ -64,23 +59,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Camera On"
-                android:textStyle="bold"
-
-                />
+                android:textStyle="bold" />
             <Button
                 android:id="@+id/lobbyToggleMicButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Mic On"
-                android:textStyle="bold"
-                />
+                android:textStyle="bold" />
             <Button
                 android:id="@+id/lobbySwitchCameraButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Switch"
-                android:textStyle="bold"
-                />
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -145,7 +136,7 @@
             android:id="@+id/statusInfoContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:padding="12dp"
             android:layout_alignParentTop="true">
 
@@ -161,8 +152,7 @@
             <LinearLayout
                 android:visibility="gone"
                 android:id="@+id/roomIdParticipantContainer"
-                android:orientation="vertical"
-                android:layout_marginTop="4dp"
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <!-- Room ID -->
@@ -172,8 +162,7 @@
                     android:layout_height="wrap_content"
                     android:text="Room ID: "
                     android:textSize="13sp"
-                    android:textColor="#666666"
-                    />
+                    android:textColor="#666666" />
 
                 <!-- Participant Count -->
                 <TextView
@@ -185,7 +174,6 @@
                     android:textColor="#666666"
                     android:layout_marginTop="2dp"/>
             </LinearLayout>
-
 
         </LinearLayout>
 
@@ -213,9 +201,7 @@
                     android:textSize="16sp"
                     android:text="Camera Off"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                </TextView>
+                    android:layout_height="wrap_content" />
 
             </RelativeLayout>
 
@@ -240,15 +226,62 @@
 
         </RelativeLayout>
 
-        <!-- Participants Grid -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/participantsRecyclerView"
+        <!-- Participants Grid (No ScrollView, fixed 2x2 grid) -->
+        <LinearLayout
+            android:id="@+id/participantsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/localVideoSection"
+            android:layout_above="@id/paginationContainer"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <GridLayout
+                android:id="@+id/participantsGridLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:rowCount="2"
+                android:padding="8dp" />
+
+        </LinearLayout>
+
+        <!-- Pagination Controls -->
+        <LinearLayout
+            android:id="@+id/paginationContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_above="@id/conferenceButtonContainer"
-            android:padding="8dp"
-            tools:listitem="@layout/item_participant"/>
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/prevPageButton"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="←"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:id="@+id/pageIndicatorText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Page 1 of 1"
+                android:textSize="10sp"
+                android:textColor="#666666"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="center"/>
+
+            <Button
+                android:id="@+id/nextPageButton"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="→"
+                android:textSize="12sp"/>
+
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/conferenceButtonContainer"
@@ -261,23 +294,19 @@
                 android:layout_height="wrap_content"
                 android:text="Cam On"
                 android:textSize="16sp"
-                android:textStyle="bold"
-
-                />
+                android:textStyle="bold" />
             <Button
                 android:id="@+id/toggleMicButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Mic On"
-                android:textStyle="bold"
-                />
+                android:textStyle="bold" />
             <Button
                 android:id="@+id/switchCameraButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Switch"
-                android:textStyle="bold"
-                />
+                android:textStyle="bold" />
             <Button
                 android:id="@+id/leaveButton"
                 android:layout_width="wrap_content"
@@ -286,7 +315,6 @@
                 android:textStyle="bold"
                 android:backgroundTint="#F44336"/>
         </LinearLayout>
-
 
     </RelativeLayout>
 
