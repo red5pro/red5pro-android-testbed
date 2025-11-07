@@ -24,6 +24,13 @@
             android:textColor="#333333"
             android:layout_marginBottom="32dp"/>
 
+        <net.red5.android.core.Red5Renderer
+            android:id="@+id/localVideoRendererForPreview"
+            android:layout_width="200dp"
+            android:layout_height="225dp">
+
+        </net.red5.android.core.Red5Renderer>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,28 +86,64 @@
         android:layout_height="match_parent"
         android:visibility="gone">
 
-        <!-- Status Indicator -->
-        <TextView
-            android:id="@+id/statusText"
-            android:layout_width="wrap_content"
+        <!-- Status Info Container -->
+        <LinearLayout
+            android:id="@+id/statusInfoContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="● Connected"
-            android:textSize="14sp"
-            android:textColor="#4CAF50"
+            android:orientation="vertical"
             android:padding="12dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"/>
+            android:layout_alignParentTop="true">
+
+            <!-- Status Indicator -->
+            <TextView
+                android:id="@+id/statusText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="● Connected"
+                android:textSize="14sp"
+                android:textColor="#4CAF50"/>
+
+            <LinearLayout
+                android:visibility="gone"
+                android:id="@+id/roomIdParticipantContainer"
+                android:orientation="vertical"
+                android:layout_marginTop="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <!-- Room ID -->
+                <TextView
+                    android:id="@+id/roomIdText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Room ID: "
+                    android:textSize="13sp"
+                    android:textColor="#666666"
+                    />
+
+                <!-- Participant Count -->
+                <TextView
+                    android:id="@+id/participantCountText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Participants: 0"
+                    android:textSize="13sp"
+                    android:textColor="#666666"
+                    android:layout_marginTop="2dp"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
 
         <!-- Local Video Section -->
         <RelativeLayout
             android:id="@+id/localVideoSection"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_below="@id/statusText"
+            android:layout_below="@id/statusInfoContainer"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginTop="8dp"
-            >
+            android:layout_marginTop="8dp">
 
             <net.red5.android.core.Red5Renderer
                 android:id="@+id/localVideoRenderer"
