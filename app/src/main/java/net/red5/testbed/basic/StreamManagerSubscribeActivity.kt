@@ -282,25 +282,28 @@ class StreamManagerSubscribeActivity : AppCompatActivity(), Red5EventListener {
         channel: String?,
         message: JsonElement?
     ) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onChatConnected() {
-        TODO("Not yet implemented")
+
     }
 
     override fun onChatDisconnected() {
-        TODO("Not yet implemented")
+
     }
 
     override fun onChatSendError(channel: String?, errorMessage: String?) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onChatSendSuccess(channel: String?, timetoken: Long?) {
-        TODO("Not yet implemented")
+
     }
 
+    override fun onChatError(error: String?) {
+
+    }
 
     companion object {
         private const val TAG = "StreamManagerSubscribeActivity"
