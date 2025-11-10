@@ -161,6 +161,10 @@ class StandalonePublishActivity : AppCompatActivity(), Red5EventListener {
         toggleCameraButton!!.setEnabled(false)
     }
 
+    override fun onChatError(error: String?) {
+
+    }
+
     private fun checkPermissions() {
         if (hasAllPermissions()) {
             initializeWebrtcClient()

@@ -540,7 +540,7 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
     override fun onChatMessageReceived(channel: String?, message: JsonElement?) {}
     override fun onChatSendSuccess(channel: String?, timetoken: Long?) {}
     override fun onChatSendError(channel: String?, errorMessage: String?) {}
-
+    override fun onChatError(error: String?) {}
     fun getRandomString(length: Int): String {
         val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
         return (1..length)

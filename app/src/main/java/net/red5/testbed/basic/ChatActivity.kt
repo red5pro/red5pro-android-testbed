@@ -266,6 +266,10 @@ class ChatActivity : AppCompatActivity(), Red5EventListener {
         red5Client?.setChatToken(chatToken)
     }
 
+    override fun onChatError(error: String?) {
+
+    }
+
     // Unused WebRTC event listeners
     override fun onPublishStarted() {}
     override fun onPublishStopped() {}
@@ -277,6 +281,7 @@ class ChatActivity : AppCompatActivity(), Red5EventListener {
     override fun onConnectionStateChanged(state: IRed5WebrtcClient.PeerConnectionState?) {}
     override fun onPreviewStarted() {}
     override fun onPreviewStopped() {}
+
 
     override fun onDestroy() {
         super.onDestroy()

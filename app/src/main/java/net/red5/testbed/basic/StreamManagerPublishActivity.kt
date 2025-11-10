@@ -456,6 +456,10 @@ class StreamManagerPublishActivity : AppCompatActivity(), Red5EventListener {
     override fun onChatSendSuccess(channel: String?, timetoken: Long?) {
     }
 
+    override fun onChatError(error: String?) {
+
+    }
+
     companion object {
         private const val TAG = "StreamManagerPublishActivity"
         private const val PERMISSION_REQUEST_CODE = 1001
