@@ -282,6 +282,7 @@ class StreamManagerSubscribeActivity : AppCompatActivity(), Red5EventListener {
         channel: String?,
         message: JsonElement?
     ) {
+
     }
 
     override fun onChatConnected() {
@@ -299,10 +300,10 @@ class StreamManagerSubscribeActivity : AppCompatActivity(), Red5EventListener {
     override fun onChatSendSuccess(channel: String?, timetoken: Long?) {
 
     }
+
     override fun onChatError(error: String?) {
 
     }
-
 
     companion object {
         private const val TAG = "StreamManagerSubscribeActivity"

@@ -444,6 +444,10 @@ class StandalonePublishActivity : AppCompatActivity(), Red5EventListener {
         })
     }
 
+    override fun onChatError(error: String?) {
+
+    }
+
     companion object {
         private const val TAG = "StandalonePublishActivity"
         private const val PERMISSION_REQUEST_CODE = 1001

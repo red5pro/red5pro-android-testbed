@@ -268,6 +268,10 @@ class ChatActivity : AppCompatActivity(), Red5EventListener {
 
     override fun onChatError(error: String?) {
 
+        runOnUiThread {
+            Toast.makeText(this, error, Toast.LENGTH_LONG).show()
+        }
+
     }
 
     // Unused WebRTC event listeners
