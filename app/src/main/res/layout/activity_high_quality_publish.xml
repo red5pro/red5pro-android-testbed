@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <FrameLayout
+        android:visibility="gone"
+        android:id="@+id/blackOverlay"
+        android:translationZ="11dp"
+        android:background="#000"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </FrameLayout>
+    <net.red5.android.core.Red5Renderer
+
+        android:id="@+id/surface_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true" />
+
+    <TextView
+        android:translationZ="12dp"
+
+        android:text="Disconnected"
+        android:textColor="@color/red"
+        android:id="@+id/status_indicator_text"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:padding="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    </TextView>
+
+    <TextView
+        android:textColor="#fff"
+        android:layout_above="@+id/controls_layout"
+        android:layout_marginBottom="10dp"
+        android:textAlignment="center"
+        android:text="This sample demonstrates very high quality publish, trading off latency. Subscriber side can have 2-5 sec latency watching this publish."
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    </TextView>
+
+    <LinearLayout
+        android:translationZ="12dp"
+
+        android:layout_above="@id/btn_publish_container"
+        android:id="@+id/controls_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/btn_switch_camera"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="10dp"
+            android:text="SWITCH"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:backgroundTint="#AA000000" />
+
+        <Button
+            android:id="@+id/btn_toggle_mic"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="10dp"
+            android:text="MIC ON"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:backgroundTint="#AA000000" />
+
+        <Button
+            android:id="@+id/btn_toggle_camera"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:text="CAM ON"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:backgroundTint="#AA000000" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btn_publish_container"
+
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:translationZ="12dp"
+
+        android:layout_height="wrap_content">
+
+        <Button
+
+            android:id="@+id/btn_publish"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+
+            android:text="START PUBLISH"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:backgroundTint="#FF0066CC" />
+    </LinearLayout>
+
+
+</RelativeLayout>

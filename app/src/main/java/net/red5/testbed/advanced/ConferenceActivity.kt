@@ -1,14 +1,16 @@
-package net.red5.testbed.basic
+package net.red5.testbed.advanced
 
 import android.Manifest
 import android.app.PictureInPictureParams
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.util.Rational
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.GridLayout
@@ -25,15 +27,15 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.gson.JsonElement
 import net.red5.android.api.IRed5WebrtcClient
-import net.red5.android.api.IRed5WebrtcClient.Red5EventListener
 import net.red5.android.core.Red5Renderer
 import net.red5.android.core.model.Red5ConferenceParticipant
 import net.red5.testbed.R
 import net.red5.testbed.SettingsActivity
 import org.json.JSONObject
+import kotlin.collections.get
 import kotlin.math.min
 
-class ConferenceActivity : AppCompatActivity(), Red5EventListener {
+class ConferenceActivity : AppCompatActivity(), IRed5WebrtcClient.Red5EventListener {
 
     private var red5Client: IRed5WebrtcClient? = null
     var TAG = "ConferenceActivity"
@@ -384,10 +386,10 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
             userIdText.text = userId
 
             // Remove renderer from any previous parent
-            (renderer?.parent as? android.view.ViewGroup)?.removeView(renderer)
+            (renderer?.parent as? ViewGroup)?.removeView(renderer)
 
             // Replace placeholder with actual renderer
-            val container = videoRendererPlaceholder.parent as? android.view.ViewGroup
+            val container = videoRendererPlaceholder.parent as? ViewGroup
             if (container != null) {
                 val index = container.indexOfChild(videoRendererPlaceholder)
                 container.removeViewAt(index)
@@ -456,7 +458,7 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
             participantsGridLayout.removeView(holder.itemView)
 
             // Remove renderer from its parent
-            (holder.renderer?.parent as? android.view.ViewGroup)?.removeView(holder.renderer)
+            (holder.renderer?.parent as? ViewGroup)?.removeView(holder.renderer)
 
             // Remove from data structures
             participants.remove(userId)
@@ -565,11 +567,11 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
 
                 override fun onDataChannelError(error: String?) {}
             })
-            .setStreamManagerHost(SettingsActivity.getStreamManagerHost(this))
-            .setLicenseKey(SettingsActivity.getLicenseKey(this))
-            .setStreamName(SettingsActivity.getStreamName(this))
-            .setUserName(SettingsActivity.getUserName(this))
-            .setPassword(SettingsActivity.getPassword(this))
+            .setStreamManagerHost(SettingsActivity.Companion.getStreamManagerHost(this))
+            .setLicenseKey(SettingsActivity.Companion.getLicenseKey(this))
+            .setStreamName(SettingsActivity.Companion.getStreamName(this))
+            .setUserName(SettingsActivity.Companion.getUserName(this))
+            .setPassword(SettingsActivity.Companion.getPassword(this))
             .setToken("")
             .setVideoWidth(1280)
             .setVideoHeight(720)
@@ -631,7 +633,7 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
     private fun updateStatus(status: String, color: String) {
         runOnUiThread {
             statusText.text = "● $status"
-            statusText.setTextColor(android.graphics.Color.parseColor(color))
+            statusText.setTextColor(Color.parseColor(color))
         }
     }
 
