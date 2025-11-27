@@ -246,10 +246,10 @@ class StandaloneSubscribeActivity : AppCompatActivity(), Red5EventListener {
 
     override fun onChatSendSuccess(channel: String?, timetoken: Long?) {
     }
-
     override fun onChatError(error: String?) {
-
     }
+
+
 
 
     override fun onSubscribeFailed(error: String?) {

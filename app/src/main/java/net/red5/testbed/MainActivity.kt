@@ -14,6 +14,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import net.red5.testbed.basic.ChatActivity
+import net.red5.testbed.basic.ConferenceActivity
 import net.red5.testbed.basic.StandalonePublishActivity
 import net.red5.testbed.basic.StandaloneSubscribeActivity
 import net.red5.testbed.basic.StreamManagerPublishActivity
@@ -40,6 +41,7 @@ class MainActivity : AppCompatActivity() {
         addActivity(StandalonePublishActivity::class.java, "Publish Standalone")
         addActivity(StandaloneSubscribeActivity::class.java, "Subscribe Standalone")
         addActivity(ChatActivity::class.java, "Chat")
+        addActivity(ConferenceActivity::class.java, "Conference")
 
         addActivity(SettingsActivity::class.java, "Settings")
     }

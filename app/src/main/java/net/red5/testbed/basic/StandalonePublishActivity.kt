@@ -161,6 +161,8 @@ class StandalonePublishActivity : AppCompatActivity(), Red5EventListener {
         toggleCameraButton!!.setEnabled(false)
     }
 
+
+
     private fun checkPermissions() {
         if (hasAllPermissions()) {
             initializeWebrtcClient()
@@ -435,9 +437,9 @@ class StandalonePublishActivity : AppCompatActivity(), Red5EventListener {
 
     override fun onError(error: String?) {
         Log.e(TAG, "General error: " + error)
-        runOnUiThread(Runnable {
+        runOnUiThread {
             Toast.makeText(this, "Error: " + error, Toast.LENGTH_LONG).show()
-        })
+        }
     }
 
     override fun onChatError(error: String?) {

@@ -12,31 +12,36 @@ Build low-latency live streaming apps with the Red5 Android WebRTC SDK. Stream v
 4. [Requirements](#requirements)
 5. [Quick Start](#quick-start)
 6. [Usage](#usage)
-   - 6.1 [Publishing to Red5 Cloud and Standalone with WebRTC](#publishing-to-red5-cloud-and-standalone-with-webrtc)
-      - 6.1.1 [Step 1: Create an activity with Red5Renderer](#step-1-create-an-activity-with-red5renderer)
-      - 6.1.2 [Step 2: Request Publish Permissions](#step-2-request-publish-permissions)
-      - 6.1.3 [Step 3: Create Red5WebrtcClient object with IRed5WebrtcClient.builder()](#step-3-create-red5webrtcclient-object-with-ired5webrtcclientbuilder)
-      - 6.1.4 [Step 4: Start Preview](#step-4-start-preview)
-      - 6.1.5 [Step 5: Start Publishing](#step-5-start-publishing)
-   - 6.2 [Subscribing to Red5 Cloud and Standalone Streams with WebRTC](#subscribing-to-red5-cloud-and-standalone-streams-with-webrtc)
-      - 6.2.1 [Step 1: Create an activity with Red5Renderer](#step-1-create-an-activity-with-red5renderer-1)
-      - 6.2.2 [Step 2: Create Red5WebrtcClient object with IRed5WebrtcClient.builder()](#step-2-create-red5webrtcclient-object-with-ired5webrtcclientbuilder)
-      - 6.2.3 [Step 3: Start Subscribing](#step-3-start-subscribing)
+    - 6.1 [Publishing to Red5 Cloud and Standalone with WebRTC](#publishing-to-red5-cloud-and-standalone-with-webrtc)
+        - 6.1.1 [Step 1: Create an activity with Red5Renderer](#step-1-create-an-activity-with-red5renderer)
+        - 6.1.2 [Step 2: Request Publish Permissions](#step-2-request-publish-permissions)
+        - 6.1.3 [Step 3: Create Red5WebrtcClient object with IRed5WebrtcClient.builder()](#step-3-create-red5webrtcclient-object-with-ired5webrtcclientbuilder)
+        - 6.1.4 [Step 4: Start Preview](#step-4-start-preview)
+        - 6.1.5 [Step 5: Start Publishing](#step-5-start-publishing)
+    - 6.2 [Subscribing to Red5 Cloud and Standalone Streams with WebRTC](#subscribing-to-red5-cloud-and-standalone-streams-with-webrtc)
+        - 6.2.1 [Step 1: Create an activity with Red5Renderer](#step-1-create-an-activity-with-red5renderer-1)
+        - 6.2.2 [Step 2: Create Red5WebrtcClient object with IRed5WebrtcClient.builder()](#step-2-create-red5webrtcclient-object-with-ired5webrtcclientbuilder)
+        - 6.2.3 [Step 3: Start Subscribing](#step-3-start-subscribing)
 7. [Listening For Events](#listening-for-events)
-   - 7.1 [Event Types](#event-types)
-   - 7.2 [Connection State Handling](#connection-state-handling)
-   - 7.3 [Full Working Example](#full-working-example)
+    - 7.1 [Event Types](#event-types)
+    - 7.2 [Connection State Handling](#connection-state-handling)
+    - 7.3 [Full Working Example](#full-working-example)
 8. [Advanced Usage](#advanced-usage)
-   - 8.1 [Turn Off/On Camera](#turn-offon-camera)
-   - 8.2 [Switch Camera](#switch-camera)
-   - 8.3 [Mute/Unmute Microphone](#muteunmute-microphone)
-   - 8.4 [Picture in Picture (PiP) Mode](#picture-in-picture-pip-mode)
+    - 8.1 [Turn Off/On Camera](#turn-offon-camera)
+    - 8.2 [Switch Camera](#switch-camera)
+    - 8.3 [Mute/Unmute Microphone](#muteunmute-microphone)
+    - 8.4 [Picture in Picture (PiP) Mode](#picture-in-picture-pip-mode)
 9. [Chat Integration](#chat-integration)
-   - 9.1 [Chat Overview](#chat-overview)
-   - 9.2 [Chat Setup](#chat-setup)
-   - 9.3 [Chat Operations](#chat-operations)
-   - 9.4 [Listening for Chat Events](#listening-for-chat-events)
-   - 9.5 [Complete Example](#complete-example)
+    - 9.1 [Chat Overview](#chat-overview)
+    - 9.2 [Chat Setup](#chat-setup)
+    - 9.3 [Chat Operations](#chat-operations)
+    - 9.4 [Listening for Chat Events](#listening-for-chat-events)
+    - 9.5 [Complete Example](#complete-example)
+10. [Conferencing](#conferencing)
+    - 10.1 [Joining a Conference Room](#joining-a-conference-room)
+    - 10.2 [Leaving a Conference Room](#leaving-a-conference-room)
+    - 10.3 [Listening for Conference Events](#listening-for-conference-events)
+    - 10.4 [Complete Example](#complete-example-1)
 
 ## Installation
 
@@ -541,3 +546,202 @@ public void onChatSendError(String channel, String errorMessage) {
 ### Complete Example
 
 For a complete working implementation of chat functionality, refer to the `ChatActivity` class in the testbed source code.
+
+## Conferencing
+
+The Red5 Android WebRTC SDK provides infinitely scalable real-time conferencing capabilities, allowing you to build applications similar to Google Meet or Zoom. Conference rooms support multiple participants with different roles (publishers and subscribers), real-time media management, and automatic participant handling.
+
+**Note:** Conferencing requires Red5 Cloud (Stream Manager) and does not work with standalone servers.
+
+### Joining a Conference Room
+
+#### Step 1: Initialize Red5WebrtcClient with Conference Listener
+
+Create your WebRTC client and set a conference listener to handle conference events:
+```java
+private IRed5WebrtcClient red5Client;
+private IRed5WebrtcClient.ConferenceListener conferenceListener;
+
+private void initSdk() {
+    conferenceListener = new IRed5WebrtcClient.ConferenceListener() {
+        @Override
+        public void onJoinRoomSuccess(String roomId, ArrayList participants) {
+            // Successfully joined the conference room
+            Log.d(TAG, "Joined room: " + roomId + " with " + participants.size() + " participants");
+        }
+
+        @Override
+        public void onJoinRoomFailed(int statusCode, String message) {
+            // Failed to join conference room
+            Log.e(TAG, "Join failed: " + message);
+        }
+
+        @Override
+        public void onParticipantJoined(String uid, String role, String metaData, 
+                                       boolean videoEnabled, boolean audioEnabled, 
+                                       Red5Renderer renderer) {
+            // A new participant joined the room
+            Log.d(TAG, "Participant joined: " + uid + " (role: " + role + ")");
+        }
+
+        @Override
+        public void onParticipantLeft(String uid) {
+            // A participant left the room
+            Log.d(TAG, "Participant left: " + uid);
+        }
+
+        @Override
+        public void onParticipantMediaUpdate(String uid, boolean videoEnabled, 
+                                            boolean audioEnabled, long timestamp) {
+            // Participant toggled their camera or microphone
+            Log.d(TAG, "Participant " + uid + " - video: " + videoEnabled + ", audio: " + audioEnabled);
+        }
+    };
+
+    red5Client = IRed5WebrtcClient.builder()
+        .setActivity(this)
+        .setLicenseKey(YOUR_SDK_LICENSE_KEY)
+        .setStreamManagerHost(YOUR_STREAM_MANAGER_HOST) // e.g. "userid-737-7f2a874662.cloud.red5.net"
+        .setVideoEnabled(true)
+        .setAudioEnabled(true)
+        .setVideoWidth(1280)
+        .setVideoHeight(720)
+        .setVideoFps(30)
+        .setVideoBitrate(1500)
+        .setVideoSource(IRed5WebrtcClient.StreamSource.FRONT_CAMERA)
+        .setVideoRenderer(localVideoRenderer)
+        .setEventListener(this)
+        .setConferenceListener(conferenceListener)  // Set conference listener
+        .build();
+}
+```
+
+#### Step 2: Join the Room
+
+Call `join()` with your conference parameters:
+```java
+String roomId = "my-conference-room";
+String userId = "john_" + System.currentTimeMillis();
+String token = ""; // Optional authentication token
+String role = "publisher"; // "publisher" or "subscriber"
+String metaData = "{\"name\":\"John Doe\"}"; // Optional JSON metadata
+
+red5Client.join(roomId, userId, token, role, metaData);
+```
+
+**Roles:**
+- **Publisher**: Can send audio/video and receive from others. Full participation in the conference.
+- **Subscriber**: Receive-only mode. Can see/hear other participants but doesn't send media.
+
+### Leaving a Conference Room
+
+Simply call `release()` to leave the conference and clean up resources:
+```java
+red5Client.release();
+```
+
+### Listening for Conference Events
+
+The `ConferenceListener` interface provides callbacks for all conference-related events:
+
+#### onJoinRoomSuccess
+Called when you successfully join a conference room.
+```java
+@Override
+public void onJoinRoomSuccess(String roomId, ArrayList participants) {
+    runOnUiThread(() -> {
+        Toast.makeText(this, "Joined room: " + roomId, Toast.LENGTH_SHORT).show();
+        
+        // Update UI with initial participant count
+        updateParticipantCount(participants.size());
+    });
+}
+```
+
+#### onJoinRoomFailed
+Called when joining a conference room fails.
+```java
+@Override
+public void onJoinRoomFailed(int statusCode, String message) {
+    runOnUiThread(() -> {
+        Toast.makeText(this, "Failed to join: " + message, Toast.LENGTH_LONG).show();
+    });
+}
+```
+
+#### onParticipantJoined
+Called when a new participant joins the room. This is where you receive their video renderer.
+```java
+@Override
+public void onParticipantJoined(String uid, String role, String metaData,
+                               boolean videoEnabled, boolean audioEnabled,
+                               Red5Renderer renderer) {
+    runOnUiThread(() -> {
+        // Add participant to your UI
+        if (renderer != null) {
+            // Add renderer to your layout to display participant's video
+            participantContainer.addView(renderer);
+        }
+        
+        // Update UI with participant info
+        Log.d(TAG, "New participant: " + uid);
+        updateParticipantList();
+    });
+}
+```
+
+**Parameters:**
+- `uid`: Unique identifier for the participant
+- `role`: Participant's role ("publisher" or "subscriber")
+- `metaData`: Custom JSON metadata provided when joining
+- `videoEnabled`: Whether participant's camera is on
+- `audioEnabled`: Whether participant's microphone is on
+- `renderer`: Red5Renderer to display participant's video (null for subscribers)
+
+#### onParticipantLeft
+Called when a participant leaves the room.
+```java
+@Override
+public void onParticipantLeft(String uid) {
+    runOnUiThread(() -> {
+        // Remove participant from your UI
+        removeParticipantFromUI(uid);
+        
+        // Update participant count
+        updateParticipantList();
+    });
+}
+```
+
+#### onParticipantMediaUpdate
+Called when a participant toggles their camera or microphone.
+```java
+@Override
+public void onParticipantMediaUpdate(String uid, boolean videoEnabled,
+                                    boolean audioEnabled, long timestamp) {
+    runOnUiThread(() -> {
+        // Update UI to show participant's media state
+        updateParticipantMediaState(uid, videoEnabled, audioEnabled);
+        
+        // For example, show/hide camera icon or mute indicator
+        if (!videoEnabled) {
+            showCameraOffIndicator(uid);
+        }
+        if (!audioEnabled) {
+            showMutedIndicator(uid);
+        }
+    });
+}
+```
+
+### Complete Example
+
+For a comprehensive implementation of conferencing with pagination, role management, and Picture-in-Picture support, see the `ConferenceActivity` class in the testbed example project. This demonstrates:
+
+- Publisher and subscriber role handling
+- Dynamic participant grid with pagination
+- Real-time media state updates
+- Conference UI management
+- Picture-in-Picture mode for conferences
+
+The complete source code is available in the example application.

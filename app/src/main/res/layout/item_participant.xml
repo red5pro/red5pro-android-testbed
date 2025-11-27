@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
+    android:layout_margin="4dp">
+    <RelativeLayout
+        android:visibility="gone"
+        android:translationZ="11dp"
+        android:id="@+id/participantCameraOffLayout"
+        android:background="#000"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:textSize="14sp"
+            android:textColor="#fff"
+            android:text="Camera Off"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        </TextView>
+
+
+    </RelativeLayout>
+    <net.red5.android.core.Red5Renderer
+        android:translationZ="10dp"
+        android:id="@+id/participantVideoRenderer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <!-- Microphone Icon -->
+    <ImageView
+        android:translationZ="12dp"
+
+        android:id="@+id/participantMicIcon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/mic_on_icon"
+        android:padding="4dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="8dp"/>
+
+    <TextView
+        android:translationZ="12dp"
+
+        android:id="@+id/participantUserId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User ID"
+        android:textSize="12sp"
+        android:textColor="#FFFFFF"
+        android:background="#80000000"
+        android:padding="6dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="4dp"/>
+
+</RelativeLayout>
