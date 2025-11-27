@@ -249,9 +249,7 @@ class StandaloneSubscribeActivity : AppCompatActivity(), Red5EventListener {
     override fun onChatError(error: String?) {
     }
 
-    override fun onChatError(error: String?) {
 
-    }
 
 
     override fun onSubscribeFailed(error: String?) {

@@ -203,12 +203,10 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
     private fun initViews() {
         joinLayout = findViewById(R.id.joinLayout)
         roomIdInput = findViewById(R.id.roomIdInput)
-        roomIdInput.setText("testroom")
         roomIdText = findViewById(R.id.roomIdText)
         participantCountText = findViewById(R.id.participantCountText)
         roomIdParticipantContainer = findViewById(R.id.roomIdParticipantContainer)
         userNameInput = findViewById(R.id.userNameInput)
-        userNameInput.setText("yunus_android")
         joinButton = findViewById(R.id.joinButton)
         subscriberLeaveButton = findViewById(R.id.subscriberLeaveButton)
         subscriberLocalContainer = findViewById(R.id.subscriberLocalContainer)
