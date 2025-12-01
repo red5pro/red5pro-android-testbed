@@ -57,6 +57,7 @@ class StreamManagerSubscribeActivity : AppCompatActivity(), Red5EventListener {
             .setStreamManagerHost(SettingsActivity.Companion.getStreamManagerHost(this))
             .setStreamName(SettingsActivity.Companion.getStreamName(this))
             .setVideoRenderer(surfaceView)
+            .setNodeGroup(SettingsActivity.getNodeGroup(this))
             .setEventListener(this)
             .build()
 
