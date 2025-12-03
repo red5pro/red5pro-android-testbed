@@ -16,6 +16,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import net.red5.android.api.IRed5WebrtcClient
 import net.red5.android.api.IRed5WebrtcClient.Red5EventListener
+import net.red5.android.core.model.RTCStats
 import net.red5.testbed.R
 import net.red5.testbed.SettingsActivity
 import java.text.SimpleDateFormat
@@ -285,6 +286,7 @@ class ChatActivity : AppCompatActivity(), Red5EventListener {
     override fun onConnectionStateChanged(state: IRed5WebrtcClient.PeerConnectionState?) {}
     override fun onPreviewStarted() {}
     override fun onPreviewStopped() {}
+    override fun onRtcStats(stats: RTCStats?) {}
 
 
     override fun onDestroy() {

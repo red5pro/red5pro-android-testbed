@@ -27,6 +27,7 @@ import com.google.gson.JsonElement
 import net.red5.android.api.IRed5WebrtcClient
 import net.red5.android.api.IRed5WebrtcClient.Red5EventListener
 import net.red5.android.core.Red5Renderer
+import net.red5.android.core.model.RTCStats
 import net.red5.android.core.model.Red5ConferenceParticipant
 import net.red5.testbed.R
 import net.red5.testbed.SettingsActivity
@@ -863,6 +864,8 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
             .map { allowedChars.random() }
             .joinToString("")
     }
+    override fun onRtcStats(stats: RTCStats?) {}
+
 
     override fun onDestroy() {
         super.onDestroy()
