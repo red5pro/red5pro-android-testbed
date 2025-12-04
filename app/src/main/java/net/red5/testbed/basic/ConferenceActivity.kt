@@ -573,6 +573,7 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
             .setPassword(SettingsActivity.getPassword(this))
             .setNodeGroup(SettingsActivity.getNodeGroup(this))
             .setAuthToken("")
+            .setStatsPollingIntervalMs(500)
             .setVideoWidth(1280)
             .setVideoHeight(720)
             .setVideoFps(30)
@@ -858,13 +859,50 @@ class ConferenceActivity : AppCompatActivity(), Red5EventListener {
     override fun onChatSendSuccess(channel: String?, timetoken: Long?) {}
     override fun onChatSendError(channel: String?, errorMessage: String?) {}
     override fun onChatError(error: String?) {}
+
     fun getRandomString(length: Int): String {
         val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
         return (1..length)
             .map { allowedChars.random() }
             .joinToString("")
     }
-    override fun onRtcStats(stats: RTCStats?) {}
+    override fun onRtcStats(stats: RTCStats?) {
+
+        stats?.let {
+            // Print local audio level
+            Log.d(TAG, "=== Local Audio Level ===")
+            Log.d(TAG, "Local microphone level: ${it.localAudioLevel}")
+
+            // Print per-participant stats
+            if (it.participantStats.isNotEmpty()) {
+                Log.d(TAG, "=== Remote Participants (${it.participantStats.size}) ===")
+
+                it.participantStats.forEach { (participantUid, participantStats) ->
+                    Log.d(TAG, "Participant: $participantUid")
+                    Log.d(TAG, "  Audio Level: ${participantStats.audioLevel}")
+                    Log.d(TAG, "  RX Video: ${participantStats.rxVideoBytes} bytes")
+                    Log.d(TAG, "  RX Audio: ${participantStats.rxAudioBytes} bytes")
+                    Log.d(TAG, "  Bitrate: ${participantStats.rxKBitRate} kbps")
+                    Log.d(TAG, "  Packet Loss: ${participantStats.packetLossRate}%")
+                    Log.d(TAG, "  RTT: ${participantStats.rtt} ms")
+                    Log.d(TAG, "  Jitter: ${participantStats.jitter} sec")
+                    Log.d(TAG, "  Frames Dropped: ${participantStats.framesDropped}")
+                    Log.d(TAG, "  Freezes: ${participantStats.freezeCount}")
+                    Log.d(TAG, "  ---")
+                }
+            } else {
+                Log.d(TAG, "No remote participants")
+            }
+
+            Log.d(TAG, "=== Aggregated Stats ===")
+            Log.d(TAG, "Total Duration: ${it.totalDuration} sec")
+            Log.d(TAG, "Total Users: ${it.users}")
+            Log.d(TAG, "TX Bitrate: ${it.txKBitRate} kbps (Audio: ${it.txAudioKBitRate}, Video: ${it.txVideoKBitRate})")
+            Log.d(TAG, "RX Bitrate: ${it.rxKBitRate} kbps (Audio: ${it.rxAudioKBitRate}, Video: ${it.rxVideoKBitRate})")
+            Log.d(TAG, "================================")
+        }
+    }
+
 
 
     override fun onDestroy() {
