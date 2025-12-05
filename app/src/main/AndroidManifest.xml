@@ -63,7 +63,13 @@
             android:supportsPictureInPicture="true" />
 
         <activity
-            android:name="net.red5.testbed.basic.ConferenceActivity"
+            android:name="net.red5.testbed.advanced.ConferenceActivity"
+            android:configChanges="orientation|keyboard|screenSize|smallestScreenSize|screenLayout"
+            android:exported="true"
+            android:supportsPictureInPicture="true" />
+
+        <activity
+            android:name="net.red5.testbed.advanced.HighQualityPublishHigherLatencyActivity"
             android:configChanges="orientation|keyboard|screenSize|smallestScreenSize|screenLayout"
             android:exported="true"
             android:supportsPictureInPicture="true" />
