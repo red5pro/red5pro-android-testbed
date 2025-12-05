@@ -12,36 +12,44 @@ Build low-latency live streaming apps with the Red5 Android WebRTC SDK. Stream v
 4. [Requirements](#requirements)
 5. [Quick Start](#quick-start)
 6. [Usage](#usage)
-    - 6.1 [Publishing to Red5 Cloud and Standalone with WebRTC](#publishing-to-red5-cloud-and-standalone-with-webrtc)
-        - 6.1.1 [Step 1: Create an activity with Red5Renderer](#step-1-create-an-activity-with-red5renderer)
-        - 6.1.2 [Step 2: Request Publish Permissions](#step-2-request-publish-permissions)
-        - 6.1.3 [Step 3: Create Red5WebrtcClient object with IRed5WebrtcClient.builder()](#step-3-create-red5webrtcclient-object-with-ired5webrtcclientbuilder)
-        - 6.1.4 [Step 4: Start Preview](#step-4-start-preview)
-        - 6.1.5 [Step 5: Start Publishing](#step-5-start-publishing)
-    - 6.2 [Subscribing to Red5 Cloud and Standalone Streams with WebRTC](#subscribing-to-red5-cloud-and-standalone-streams-with-webrtc)
-        - 6.2.1 [Step 1: Create an activity with Red5Renderer](#step-1-create-an-activity-with-red5renderer-1)
-        - 6.2.2 [Step 2: Create Red5WebrtcClient object with IRed5WebrtcClient.builder()](#step-2-create-red5webrtcclient-object-with-ired5webrtcclientbuilder)
-        - 6.2.3 [Step 3: Start Subscribing](#step-3-start-subscribing)
+   - 6.1 [Publishing to Red5 Cloud and Standalone with WebRTC](#publishing-to-red5-cloud-and-standalone-with-webrtc)
+      - 6.1.1 [Step 1: Create an activity with Red5Renderer](#step-1-create-an-activity-with-red5renderer)
+      - 6.1.2 [Step 2: Request Publish Permissions](#step-2-request-publish-permissions)
+      - 6.1.3 [Step 3: Create Red5WebrtcClient object with IRed5WebrtcClient.builder()](#step-3-create-red5webrtcclient-object-with-ired5webrtcclientbuilder)
+      - 6.1.4 [Step 4: Start Preview](#step-4-start-preview)
+      - 6.1.5 [Step 5: Start Publishing](#step-5-start-publishing)
+   - 6.2 [Subscribing to Red5 Cloud and Standalone Streams with WebRTC](#subscribing-to-red5-cloud-and-standalone-streams-with-webrtc)
+      - 6.2.1 [Step 1: Create an activity with Red5Renderer](#step-1-create-an-activity-with-red5renderer-1)
+      - 6.2.2 [Step 2: Create Red5WebrtcClient object with IRed5WebrtcClient.builder()](#step-2-create-red5webrtcclient-object-with-ired5webrtcclientbuilder)
+      - 6.2.3 [Step 3: Start Subscribing](#step-3-start-subscribing)
 7. [Listening For Events](#listening-for-events)
-    - 7.1 [Event Types](#event-types)
-    - 7.2 [Connection State Handling](#connection-state-handling)
-    - 7.3 [Full Working Example](#full-working-example)
+   - 7.1 [Event Types](#event-types)
+   - 7.2 [Connection State Handling](#connection-state-handling)
+   - 7.3 [Full Working Example](#full-working-example)
 8. [Advanced Usage](#advanced-usage)
-    - 8.1 [Turn Off/On Camera](#turn-offon-camera)
-    - 8.2 [Switch Camera](#switch-camera)
-    - 8.3 [Mute/Unmute Microphone](#muteunmute-microphone)
-    - 8.4 [Picture in Picture (PiP) Mode](#picture-in-picture-pip-mode)
+   - 8.1 [Turn Off/On Camera](#turn-offon-camera)
+   - 8.2 [Switch Camera](#switch-camera)
+   - 8.3 [Mute/Unmute Microphone](#muteunmute-microphone)
+   - 8.4 [Picture in Picture (PiP) Mode](#picture-in-picture-pip-mode)
 9. [Chat Integration](#chat-integration)
-    - 9.1 [Chat Overview](#chat-overview)
-    - 9.2 [Chat Setup](#chat-setup)
-    - 9.3 [Chat Operations](#chat-operations)
-    - 9.4 [Listening for Chat Events](#listening-for-chat-events)
-    - 9.5 [Complete Example](#complete-example)
+   - 9.1 [Chat Overview](#chat-overview)
+   - 9.2 [Chat Setup](#chat-setup)
+   - 9.3 [Chat Operations](#chat-operations)
+   - 9.4 [Listening for Chat Events](#listening-for-chat-events)
+   - 9.5 [Complete Example](#complete-example)
 10. [Conferencing](#conferencing)
-    - 10.1 [Joining a Conference Room](#joining-a-conference-room)
-    - 10.2 [Leaving a Conference Room](#leaving-a-conference-room)
-    - 10.3 [Listening for Conference Events](#listening-for-conference-events)
-    - 10.4 [Complete Example](#complete-example-1)
+- 10.1 [Joining a Conference Room](#joining-a-conference-room)
+- 10.2 [Leaving a Conference Room](#leaving-a-conference-room)
+- 10.3 [Listening for Conference Events](#listening-for-conference-events)
+- 10.4 [Complete Example](#complete-example-1)
+11. [Stats Collector](#stats-collector)
+- 11.1 [Overview](#overview)
+- 11.2 [Enabling Stats Collection](#enabling-stats-collection)
+- 11.3 [Receiving Stats](#receiving-stats)
+- 11.4 [Available Statistics](#available-statistics)
+- 11.5 [Audio Levels](#audio-levels)
+- 11.6 [Conference Stats](#conference-stats)
+- 11.7 [Complete Example](#complete-example-2)
 
 ## Installation
 
@@ -85,7 +93,7 @@ IRed5WebrtcClient webrtcClient = IRed5WebrtcClient.builder()
     .setStreamManagerHost(YOUR_STREAM_MANAGER_HOST_ADDRESS) //e.g. "userid-737-7f2a874662.cloud.red5.net"
     .setUserName(USERNAME_IF_USERNAME_PASS_AUTH_ENABLED)
     .setPassword(PASSWORD_IF_USERNAME_PASS_AUTH_ENABLED)
-    .setAuthToken(AUTH_TOKEN_IF_ENABLED)
+    .setToken(AUTH_TOKEN_IF_ENABLED)
     .setVideoEnabled(true)
     .setAudioEnabled(true)
     .setVideoWidth(1280)
@@ -166,22 +174,46 @@ Create the WebRTC client when publish permissions are granted. This single objec
 
 **For Red5 Cloud (Stream Manager):**
 - Use `setStreamManagerHost()` with your stream manager host address
-- Example: `userid-737-7f2a874662.cloud.red5.net`
+- Example: `userid-000-xxxxxxxxxx.cloud.red5.net`
 
 **For Standalone Server:**
 - Use `setServerIp()` with your server IP address
 - Use `setServerPort()` if different from default (5080)
 
-```java
-IRed5WebrtcClient webrtcClient = IRed5WebrtcClient.builder()
-    .setActivity(this)
+Kotlin:
+```kotlin
+val webrtcClient: IRed5WebrtcClient? = IRed5WebrtcClient.builder()
+    .setActivity(this.requireActivity())
     .setLicenseKey(YOUR_SDK_LICENSE_KEY)
     .setStreamManagerHost("userid-737-7f2a874662.cloud.red5.net") // For cloud
     // .setServerIp("192.168.1.100") // For standalone
     // .setServerPort(5080) // For standalone (optional, default is 5080)
     .setUserName(USERNAME_IF_USERNAME_PASS_AUTH_ENABLED)
     .setPassword(PASSWORD_IF_USERNAME_PASS_AUTH_ENABLED)
-    .setAuthToken(AUTH_TOKEN_IF_ENABLED)
+    .setToken(AUTH_TOKEN_IF_ENABLED)
+    .setVideoEnabled(true)
+    .setAudioEnabled(true)
+    .setVideoWidth(1280)
+    .setVideoHeight(720)
+    .setVideoFps(30)
+    .setVideoBitrate(1500)
+    .setVideoSource(IRed5WebrtcClient.StreamSource.FRONT_CAMERA)
+    .setVideoRenderer(surfaceView)
+    .setEventListener(this)
+    .build()
+```
+
+Java:
+```java
+IRed5WebrtcClient webrtcClient = IRed5WebrtcClient.builder()
+    .setActivity(this)
+    .setLicenseKey(YOUR_SDK_LICENSE_KEY)
+    .setStreamManagerHost("userid-000-xxxxxxxxxx.cloud.red5.net") // For cloud
+    // .setServerIp("192.168.1.100") // For standalone
+    // .setServerPort(5080) // For standalone (optional, default is 5080)
+    .setUserName(USERNAME_IF_USERNAME_PASS_AUTH_ENABLED)
+    .setPassword(PASSWORD_IF_USERNAME_PASS_AUTH_ENABLED)
+    .setToken(AUTH_TOKEN_IF_ENABLED)
     .setVideoEnabled(true)
     .setAudioEnabled(true)
     .setVideoWidth(1280)
@@ -197,6 +229,20 @@ IRed5WebrtcClient webrtcClient = IRed5WebrtcClient.builder()
 #### Step 4: Start Preview
 
 When `webrtcClient` is created, it performs a license check. Implement `IRed5WebrtcClient.Red5EventListener` in your activity and override `onLicenseValidated`:
+
+Kotlin:
+```kotlin
+override fun onLicenseValidated(validated: Boolean, message: String?) {
+    if (validated) {
+        renderer.startPreview()
+        Toast.makeText(this.requireContext(), "License check success", Toast.LENGTH_SHORT).show()
+    } else {
+        Toast.makeText(this.requireContext(), "License check failed: " + message, Toast.LENGTH_SHORT).show()
+    }
+}
+```
+
+Java:
 
 ```java
 @Override
@@ -253,7 +299,7 @@ IRed5WebrtcClient webrtcClient = IRed5WebrtcClient.builder()
     // .setServerPort(5080) // For standalone (optional)
     .setUserName(USERNAME_IF_USERNAME_PASS_AUTH_ENABLED)
     .setPassword(PASSWORD_IF_USERNAME_PASS_AUTH_ENABLED)
-    .setAuthToken(AUTH_TOKEN_IF_ENABLED)
+    .setToken(AUTH_TOKEN_IF_ENABLED)
     .setVideoRenderer(surfaceView)
     .setEventListener(this)
     .build();
@@ -745,3 +791,235 @@ For a comprehensive implementation of conferencing with pagination, role managem
 - Picture-in-Picture mode for conferences
 
 The complete source code is available in the example application.
+
+## Stats Collector
+
+The Red5 Android WebRTC SDK includes a comprehensive stats collection system that provides real-time metrics about your WebRTC connections. This is essential for monitoring stream quality, diagnosing network issues, and building quality indicators in your UI.
+
+### Overview
+
+The Stats Collector automatically gathers WebRTC statistics every 2 seconds (configurable) and provides:
+
+- **Network metrics**: Bitrates, packet loss, RTT (round-trip time), jitter
+- **Media metrics**: Frame rates, resolution, bytes transferred
+- **Quality metrics**: Frames dropped, freeze counts, pause durations
+- **Audio levels**: Real-time microphone and participant volume levels
+- **Per-participant stats**: Individual metrics for each conference participant
+- **System metrics**: Memory usage, CPU usage
+
+### Enabling Stats Collection
+
+Enable stats collection when building your `Red5WebrtcClient`:
+
+```java
+IRed5WebrtcClient webrtcClient = IRed5WebrtcClient.builder()
+    .setActivity(this)
+    .setLicenseKey(YOUR_SDK_LICENSE_KEY)
+    .setStreamManagerHost(YOUR_STREAM_MANAGER_HOST)
+    .setVideoEnabled(true)
+    .setAudioEnabled(true)
+    .setVideoRenderer(surfaceView)
+    .setEventListener(this)
+    // Enable stats collection by default its enabled
+    .setStatsCollectorEnabled(true)
+    // Optional: Set polling interval (default is 2000ms)
+    .setStatsPollingIntervalMs(2000)
+    .build();
+```
+
+### Receiving Stats
+
+Implement the `onRtcStats()` callback in your `Red5EventListener`:
+
+```java
+@Override
+public void onRtcStats(RTCStats stats) {
+    // Called every 2 seconds (or your configured interval) with updated stats
+    Log.d(TAG, "TX Bitrate: " + stats.txKBitRate + " kbps");
+    Log.d(TAG, "RX Bitrate: " + stats.rxKBitRate + " kbps");
+    Log.d(TAG, "Packet Loss: " + stats.rxPacketLossRate + "%");
+}
+```
+
+### Available Statistics
+
+The `RTCStats` object provides comprehensive metrics:
+
+#### Connection Duration
+```java
+int totalDuration = stats.totalDuration; // Total call duration in seconds
+int users = stats.users; // Number of users in call/conference
+```
+
+#### Bitrate Metrics (in kbps)
+```java
+// Transmit (upload) bitrates
+int txKBitRate = stats.txKBitRate;       // Total TX bitrate
+int txAudioKBitRate = stats.txAudioKBitRate; // Audio TX bitrate
+int txVideoKBitRate = stats.txVideoKBitRate; // Video TX bitrate
+
+// Receive (download) bitrates
+int rxKBitRate = stats.rxKBitRate;       // Total RX bitrate
+int rxAudioKBitRate = stats.rxAudioKBitRate; // Audio RX bitrate
+int rxVideoKBitRate = stats.rxVideoKBitRate; // Video RX bitrate
+```
+
+#### Bytes Transferred
+```java
+// Transmit (upload) bytes - cumulative
+int txBytes = stats.txBytes;             // Total TX bytes
+int txAudioBytes = stats.txAudioBytes;   // Audio TX bytes
+int txVideoBytes = stats.txVideoBytes;   // Video TX bytes
+
+// Receive (download) bytes - cumulative
+int rxBytes = stats.rxBytes;             // Total RX bytes
+int rxAudioBytes = stats.rxAudioBytes;   // Audio RX bytes
+int rxVideoBytes = stats.rxVideoBytes;   // Video RX bytes
+```
+
+#### Network Quality Metrics
+```java
+int lastmileDelay = stats.lastmileDelay;     // RTT to server in ms
+int gatewayRtt = stats.gatewayRtt;           // Gateway RTT in ms
+int txPacketLossRate = stats.txPacketLossRate; // TX packet loss % (0-100)
+int rxPacketLossRate = stats.rxPacketLossRate; // RX packet loss % (0-100)
+```
+
+#### System Metrics
+```java
+double cpuTotalUsage = stats.cpuTotalUsage;           // System CPU usage %
+double cpuAppUsage = stats.cpuAppUsage;               // App CPU usage %
+double memoryAppUsageRatio = stats.memoryAppUsageRatio;     // App memory %
+double memoryTotalUsageRatio = stats.memoryTotalUsageRatio; // System memory %
+int memoryAppUsageInKbytes = stats.memoryAppUsageInKbytes;  // App memory in KB
+```
+
+### Audio Levels
+
+The Stats Collector provides real-time audio level monitoring, perfect for building "who is talking" indicators in your UI.
+
+#### Local Audio Level
+
+Monitor your own microphone input level:
+
+```java
+@Override
+public void onRtcStats(RTCStats stats) {
+    // Local microphone level (0.0 = silence, 1.0 = maximum)
+    double micLevel = stats.localAudioLevel;
+
+    // Show visual indicator when speaking
+    if (micLevel > 0.05) {
+        // User is speaking - show microphone activity indicator
+        showMicrophoneActivity();
+    } else {
+        hideMicrophoneActivity();
+    }
+}
+```
+
+**Audio Level Ranges:**
+- `0.0`: Complete silence
+- `0.01 - 0.05`: Very quiet / background noise
+- `0.05 - 0.15`: Normal conversation (most common)
+- `0.15 - 0.3`: Louder talking
+- `0.3 - 1.0`: Very loud / shouting
+
+**Recommended threshold for voice activity detection:** `0.02 - 0.05`
+Ranges may vary, so test before deciding.
+
+#### Remote Participant Audio Levels
+
+In conference mode, monitor each participant's audio level:
+
+```java
+@Override
+public void onRtcStats(RTCStats stats) {
+    // Iterate through all remote participants
+    for (Map.Entry<String, RemoteParticipantStats> entry : stats.participantStats.entrySet()) {
+        String participantId = entry.getKey();
+        RemoteParticipantStats pStats = entry.getValue();
+
+        // Get participant's audio level (0.0 - 1.0)
+        double audioLevel = pStats.audioLevel;
+
+        // Update UI to show who is speaking
+        if (audioLevel > 0.05) {
+            highlightSpeakingParticipant(participantId);
+        } else {
+            removeSpeakingHighlight(participantId);
+        }
+    }
+}
+```
+
+### Conference Stats
+
+When in conference mode, the Stats Collector automatically provides per-participant statistics, allowing you to monitor the quality of each individual participant's stream.
+
+#### Accessing Per-Participant Stats
+
+```java
+@Override
+public void onRtcStats(RTCStats stats) {
+    
+    // Iterate through each participant
+    for (Map.Entry<String, RemoteParticipantStats> entry : stats.participantStats.entrySet()) {
+        String participantUid = entry.getKey();
+        RemoteParticipantStats pStats = entry.getValue();
+
+        Log.d(TAG, "=== Participant: " + participantUid + " ===");
+        Log.d(TAG, "Audio Level: " + pStats.audioLevel);
+        Log.d(TAG, "RX Bitrate: " + pStats.rxKBitRate + " kbps");
+        Log.d(TAG, "Packet Loss: " + pStats.packetLossRate + "%");
+        Log.d(TAG, "RTT: " + pStats.rtt + " ms");
+    }
+}
+```
+
+#### RemoteParticipantStats Fields
+
+Each participant has the following statistics:
+
+**Participant Identification:**
+```java
+String participantId = pStats.participantId; // Participant's unique ID
+```
+
+**Audio Metrics:**
+```java
+double audioLevel = pStats.audioLevel;              // Volume level (0.0 - 1.0)
+long rxAudioBytes = pStats.rxAudioBytes;            // Audio bytes received
+int rxAudioKBitRate = pStats.rxAudioKBitRate;       // Audio bitrate in kbps
+long concealmentEvents = pStats.concealmentEvents;  // Audio packet loss concealment
+long concealedSamples = pStats.concealedSamples;    // Concealed audio samples
+```
+
+**Video Metrics:**
+```java
+long rxVideoBytes = pStats.rxVideoBytes;            // Video bytes received
+int rxVideoKBitRate = pStats.rxVideoKBitRate;       // Video bitrate in kbps
+long framesReceived = pStats.framesReceived;        // Total frames received
+long framesDropped = pStats.framesDropped;          // Frames dropped
+long framesDecoded = pStats.framesDecoded;          // Frames decoded
+```
+
+**Network Quality:**
+```java
+int rxKBitRate = pStats.rxKBitRate;                 // Total bitrate in kbps
+long rxBytes = pStats.rxBytes;                      // Total bytes received
+int packetLossRate = pStats.packetLossRate;         // Packet loss % (0-100)
+int rtt = pStats.rtt;                               // Round-trip time in ms
+double jitter = pStats.jitter;                      // Jitter in seconds
+```
+
+**Video Quality Indicators:**
+```java
+long freezeCount = pStats.freezeCount;              // Number of video freezes
+double totalFreezesDuration = pStats.totalFreezesDuration; // Total freeze time (seconds)
+long pauseCount = pStats.pauseCount;                // Number of pauses
+double totalPausesDuration = pStats.totalPausesDuration;   // Total pause time (seconds)
+String decoderImplementation = pStats.decoderImplementation; // Video decoder name
+```
+
+
