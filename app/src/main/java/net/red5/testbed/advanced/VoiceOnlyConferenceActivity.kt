@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat
 import com.google.gson.JsonElement
 import net.red5.android.api.IRed5WebrtcClient
 import net.red5.android.core.Red5Renderer
+import net.red5.android.core.model.RTCStats
 import net.red5.android.core.model.Red5ConferenceParticipant
 import net.red5.testbed.R
 import net.red5.testbed.SettingsActivity
@@ -36,6 +37,7 @@ class VoiceOnlyConferenceActivity : AppCompatActivity(), IRed5WebrtcClient.Red5E
 
     private var red5Client: IRed5WebrtcClient? = null
     var TAG = "VoiceOnlyConferenceActivity"
+
     private  val PERMISSION_REQUEST_CODE = 1001
 
     private val REQUIRED_PERMISSIONS = arrayOf<String>(
@@ -629,6 +631,10 @@ class VoiceOnlyConferenceActivity : AppCompatActivity(), IRed5WebrtcClient.Red5E
         return (1..length)
             .map { allowedChars.random() }
             .joinToString("")
+    }
+
+    override fun onRtcStats(stats: RTCStats?) {
+
     }
 
     override fun onDestroy() {
