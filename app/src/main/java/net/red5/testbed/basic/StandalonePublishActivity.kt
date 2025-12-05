@@ -192,7 +192,7 @@ class StandalonePublishActivity : AppCompatActivity(), Red5EventListener {
             .setStreamName(SettingsActivity.getStreamName(this))
             .setUserName(SettingsActivity.getUserName(this))
             .setPassword(SettingsActivity.getPassword(this))
-            .setToken("")
+            .setAuthToken("")
             .setVideoEnabled(true)
             .setAudioEnabled(true)
             .setVideoWidth(1280)
