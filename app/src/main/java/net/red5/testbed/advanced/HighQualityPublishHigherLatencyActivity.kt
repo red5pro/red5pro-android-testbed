@@ -30,7 +30,7 @@ import net.red5.testbed.SettingsActivity
 
 /**
  * This sample demonstrates publishing with very high quality by trading off
- * latency. Subscriber latency will be between 2-5 sec.
+ * latency. Subscriber latency will be around 2-5 sec.
  * Can be useful for sport streaming, webinars etc where quality matters more than latency
  * .setVideoWidth(1920)
  * .setVideoHeight(1080)

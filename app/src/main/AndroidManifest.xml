@@ -74,6 +74,13 @@
             android:exported="true"
             android:supportsPictureInPicture="true" />
 
+        <activity
+            android:name="net.red5.testbed.advanced.VoiceOnlyConferenceActivity"
+            android:configChanges="orientation|keyboard|screenSize|smallestScreenSize|screenLayout"
+            android:exported="true"
+            android:supportsPictureInPicture="true" />
+
+
     </application>
 
 </manifest>
