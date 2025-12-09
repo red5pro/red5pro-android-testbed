@@ -51,10 +51,11 @@ class ScreenShareActivity : AppCompatActivity(), Red5EventListener {
     private var isInPictureInPictureMode = false
     private var blackOverlay: FrameLayout? = null
     private var isServiceRunning = false
+    private var isScreenShare = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_simple_publish)
+        setContentView(R.layout.activity_screenshare)
 
         initViews()
         checkPermissions()
@@ -78,10 +79,19 @@ class ScreenShareActivity : AppCompatActivity(), Red5EventListener {
             }
         })
 
-        // Switch camera button
+        // Switch between screen share and front camera
         switchCameraButton!!.setOnClickListener(View.OnClickListener { v: View? ->
             if (webrtcClient != null) {
-                webrtcClient!!.switchCamera()
+                isScreenShare = !isScreenShare
+                if (isScreenShare) {
+                    // Switching to screen share - need to request permission again
+                    requestScreenShare()
+                    switchCameraButton!!.setText("SCREEN")
+                } else {
+                    // Switching to front camera
+                    webrtcClient!!.changeVideoSource(IRed5WebrtcClient.StreamSource.FRONT_CAMERA)
+                    switchCameraButton!!.setText("CAMERA")
+                }
             }
         })
 
@@ -508,16 +518,22 @@ class ScreenShareActivity : AppCompatActivity(), Red5EventListener {
     ) {
         super.onActivityResult(requestCode, resultCode, data, caller)
         if (requestCode == REQUEST_MEDIA_PROJECTION && resultCode == RESULT_OK && data != null) {
-            initializeWebrtcClient()
-
-            webrtcClient?.config!!.mediaProjectionPermissionResultData = data
-            webrtcClient?.config!!.mediaProjectionCallback = object : MediaProjection.Callback() {
-                override fun onStop() {
-                    Log.d(TAG, "Screen capture stopped")
+            if (webrtcClient == null) {
+                // Initial setup
+                initializeWebrtcClient()
+                webrtcClient?.config!!.mediaProjectionPermissionResultData = data
+                webrtcClient?.config!!.mediaProjectionCallback = object : MediaProjection.Callback() {
+                    override fun onStop() {
+                        Log.d(TAG, "Screen capture stopped")
+                    }
                 }
-            }
-            webrtcClient?.startPreview()
+                webrtcClient?.startPreview()
+            } else {
+                // Switching back to screen share
+                webrtcClient?.config!!.mediaProjectionPermissionResultData = data
+                webrtcClient!!.changeVideoSource(IRed5WebrtcClient.StreamSource.SCREEN)
 
+            }
         }
     }
 

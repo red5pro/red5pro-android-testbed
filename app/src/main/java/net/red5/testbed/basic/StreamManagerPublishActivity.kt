@@ -169,6 +169,7 @@ class StreamManagerPublishActivity : AppCompatActivity(), Red5EventListener {
 
         webrtcClient = IRed5WebrtcClient.builder()
             .setActivity(this)
+            .setIceGatheringTimeoutMs(5000)
             .setLicenseKey(SettingsActivity.getLicenseKey(this))
             .setDataChannelListener(dataChanneListener)
             .setStreamManagerHost(SettingsActivity.getStreamManagerHost(this))
