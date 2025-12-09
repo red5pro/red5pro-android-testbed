@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import net.red5.testbed.advanced.HighQualityPublishHigherLatencyActivity
 import net.red5.testbed.basic.ChatActivity
 import net.red5.testbed.advanced.ConferenceActivity
+import net.red5.testbed.advanced.ScreenShareActivity
 import net.red5.testbed.advanced.VoiceOnlyConferenceActivity
 import net.red5.testbed.basic.StandalonePublishActivity
 import net.red5.testbed.basic.StandaloneSubscribeActivity
@@ -45,8 +46,8 @@ class MainActivity : AppCompatActivity() {
         addActivity(ChatActivity::class.java, "Chat")
         addActivity(ConferenceActivity::class.java, "Conference")
         addActivity(VoiceOnlyConferenceActivity::class.java, "Voice Only Conference")
-
         addActivity(HighQualityPublishHigherLatencyActivity::class.java, "High Quality SM Publish")
+        addActivity(ScreenShareActivity::class.java, "Screen Share")
 
         addActivity(SettingsActivity::class.java, "Settings")
     }

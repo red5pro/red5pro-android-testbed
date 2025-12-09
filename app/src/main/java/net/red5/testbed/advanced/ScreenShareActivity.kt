@@ -1,4 +1,543 @@
 package net.red5.testbed.advanced
 
-class ScreenShareActivity {
+import android.Manifest
+import android.app.ComponentCaller
+import android.app.PictureInPictureParams
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.media.projection.MediaProjection
+import android.media.projection.MediaProjectionManager
+import android.os.Build
+import android.os.Bundle
+import android.util.Log
+import android.util.Rational
+import android.view.View
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.gson.JsonElement
+import net.red5.android.api.IRed5WebrtcClient
+import net.red5.android.api.IRed5WebrtcClient.Red5EventListener
+import net.red5.android.core.Red5Renderer
+import net.red5.android.core.model.RTCStats
+import net.red5.testbed.R
+import net.red5.testbed.SettingsActivity
+
+/**
+ * Screen share publish to Red5 stream manager(cloud)
+ */
+class ScreenShareActivity : AppCompatActivity(), Red5EventListener {
+    private var surfaceView: Red5Renderer? = null
+    private var publishButton: Button? = null
+    private var switchCameraButton: Button? = null
+    private var toggleMicButton: Button? = null
+    private var toggleCameraButton: Button? = null
+
+    private var statusIndicatorTextView: TextView? = null
+    private var controlsLayout: LinearLayout? = null
+
+    private var webrtcClient: IRed5WebrtcClient? = null
+    private var isPublishing = false
+    private var isMicEnabled = true
+    private var isCameraEnabled = true
+    private var isInPictureInPictureMode = false
+    private var blackOverlay: FrameLayout? = null
+    private var isServiceRunning = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_simple_publish)
+
+        initViews()
+        checkPermissions()
+    }
+
+    private fun initViews() {
+        surfaceView = findViewById<Red5Renderer>(R.id.surface_view)
+        publishButton = findViewById<Button>(R.id.btn_publish)
+        switchCameraButton = findViewById<Button>(R.id.btn_switch_camera)
+        toggleMicButton = findViewById<Button>(R.id.btn_toggle_mic)
+        toggleCameraButton = findViewById<Button>(R.id.btn_toggle_camera)
+        controlsLayout = findViewById<LinearLayout>(R.id.controls_layout)
+        statusIndicatorTextView = findViewById<TextView>(R.id.status_indicator_text)
+        blackOverlay = findViewById<FrameLayout>(R.id.blackOverlay)
+        // Main publish button
+        publishButton!!.setOnClickListener(View.OnClickListener { v: View? ->
+            if (isPublishing) {
+                stopPublish()
+            } else {
+                startPublish()
+            }
+        })
+
+        // Switch camera button
+        switchCameraButton!!.setOnClickListener(View.OnClickListener { v: View? ->
+            if (webrtcClient != null) {
+                webrtcClient!!.switchCamera()
+            }
+        })
+
+        // Toggle microphone button
+        toggleMicButton!!.setOnClickListener(View.OnClickListener { v: View? ->
+            if (webrtcClient != null) {
+                isMicEnabled = !isMicEnabled
+                webrtcClient!!.toggleSendAudio(isMicEnabled)
+
+                // Update button text and color
+                toggleMicButton!!.setText(if (isMicEnabled) "MIC ON" else "MIC OFF")
+                toggleMicButton!!.setBackgroundTintList(
+                    getResources().getColorStateList(
+                        if (isMicEnabled) android.R.color.holo_green_dark else android.R.color.holo_red_dark,
+                        getTheme()
+                    )
+                )
+            }
+        })
+
+        toggleCameraButton!!.setOnClickListener(View.OnClickListener { v: View? ->
+            if (webrtcClient != null) {
+                isCameraEnabled = !isCameraEnabled
+                webrtcClient!!.toggleSendVideo(isCameraEnabled)
+                if (isCameraEnabled) {
+                    blackOverlay!!.setVisibility(View.GONE)
+                } else {
+                    blackOverlay!!.setVisibility(View.VISIBLE)
+                }
+
+
+                toggleCameraButton!!.setText(if (isCameraEnabled) "CAM ON" else "CAM OFF")
+                toggleCameraButton!!.setBackgroundTintList(
+                    getResources().getColorStateList(
+                        if (isCameraEnabled) android.R.color.holo_green_dark else android.R.color.holo_red_dark,
+                        getTheme()
+                    )
+                )
+            }
+        })
+
+        switchCameraButton!!.setEnabled(false)
+        toggleMicButton!!.setEnabled(false)
+        toggleCameraButton!!.setEnabled(false)
+    }
+
+    private fun checkPermissions() {
+        if (hasAllPermissions()) {
+            startMediaProjectionService()
+            requestScreenShare()
+            //initializeWebrtcClient()
+        } else {
+            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, PERMISSION_REQUEST_CODE)
+        }
+    }
+
+    private fun startMediaProjectionService() {
+        if (!isServiceRunning) {
+            val serviceIntent = Intent(this, MediaProjectionService::class.java)
+            ContextCompat.startForegroundService(this, serviceIntent)
+            isServiceRunning = true
+            Log.d(TAG, "MediaProjectionService started")
+        }
+    }
+
+    private fun stopMediaProjectionService() {
+        if (isServiceRunning) {
+            val serviceIntent = Intent(this, MediaProjectionService::class.java)
+            stopService(serviceIntent)
+            isServiceRunning = false
+            Log.d(TAG, "MediaProjectionService stopped")
+        }
+    }
+
+    private fun hasAllPermissions(): Boolean {
+        for (permission in REQUIRED_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    permission
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun initializeWebrtcClient() {
+
+        var dataChanneListener = object : IRed5WebrtcClient.DataChannelListener {
+            override fun onDataChannelOpen() {
+                Log.i(TAG,"Data channel open")
+            }
+
+            override fun onDataChannelClosed() {
+                Log.i(TAG,"Data channel closed")
+            }
+
+            override fun onDataChannelMessage(message: String?) {
+                Log.i(TAG, "Data channel message received: $message");
+            }
+
+            override fun onDataChannelMessage(data: ByteArray?) {
+                Log.i(TAG, "Data channel message as byte arr received");
+            }
+
+            override fun onDataChannelError(error: String?) {
+                Log.i(TAG, "Data channel error");
+            }
+        }
+
+        webrtcClient = IRed5WebrtcClient.builder()
+            .setActivity(this)
+            .setVideoSource(IRed5WebrtcClient.StreamSource.SCREEN)
+            .setLicenseKey(SettingsActivity.getLicenseKey(this))
+            .setDataChannelListener(dataChanneListener)
+            .setStreamManagerHost(SettingsActivity.getStreamManagerHost(this))
+            .setStreamName(SettingsActivity.getStreamName(this))
+            .setUserName(SettingsActivity.getUserName(this))
+            .setPassword(SettingsActivity.getPassword(this))
+            .setAuthToken("")
+            .setNodeGroup(SettingsActivity.getNodeGroup(this))
+            .setVideoEnabled(true)
+            .setAudioEnabled(true)
+            .setVideoWidth(1280)
+            .setVideoHeight(720)
+            .setVideoFps(30)
+            .setVideoBitrate(1500)
+            .setVideoRenderer(surfaceView)
+            .setEventListener(this)
+            .build()
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    override fun enterPictureInPictureMode() {
+        val aspectRatio = Rational(surfaceView!!.getWidth(), surfaceView!!.getHeight())
+
+        val params = PictureInPictureParams.Builder()
+            .setAspectRatio(aspectRatio)
+            .build()
+
+        val result = enterPictureInPictureMode(params)
+        if (!result) {
+            Toast.makeText(this, "Could not enter Picture-in-Picture mode", Toast.LENGTH_SHORT)
+                .show()
+        }
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+
+        this.isInPictureInPictureMode = isInPictureInPictureMode
+
+        if (isInPictureInPictureMode) {
+            // Hide UI controls in PiP mode
+            controlsLayout!!.setVisibility(View.GONE)
+            publishButton!!.setVisibility(View.GONE)
+            statusIndicatorTextView!!.setVisibility(View.GONE)
+            Log.d(TAG, "Entered Picture-in-Picture mode")
+        } else {
+            // Show UI controls when returning from PiP mode
+            controlsLayout!!.setVisibility(View.VISIBLE)
+            publishButton!!.setVisibility(View.VISIBLE)
+
+            statusIndicatorTextView!!.setVisibility(View.VISIBLE)
+            Log.d(TAG, "Exited Picture-in-Picture mode")
+        }
+    }
+
+    private fun startPublish() {
+        if (webrtcClient != null && !isPublishing) {
+            Log.d(TAG, "Starting publish...")
+            webrtcClient!!.publish(SettingsActivity.getStreamName(this))
+            publishButton!!.setText("PUBLISHING...")
+            publishButton!!.setEnabled(false)
+            statusIndicatorTextView!!.setTextColor(getResources().getColor(R.color.blue))
+            statusIndicatorTextView!!.setText("Connecting")
+        }
+    }
+
+    private fun stopPublish() {
+        if (webrtcClient != null && isPublishing) {
+            Log.d(TAG, "Stopping publish...")
+            webrtcClient!!.stopPublish()
+            publishButton!!.setText("STOPPING...")
+            publishButton!!.setEnabled(false)
+            stopMediaProjectionService()
+        }
+    }
+
+    private fun enableControlButtons(enable: Boolean) {
+        runOnUiThread(Runnable {
+            switchCameraButton!!.setEnabled(enable)
+            toggleMicButton!!.setEnabled(enable)
+            toggleCameraButton!!.setEnabled(enable)
+            if (enable) {
+                toggleMicButton!!.setText(if (isMicEnabled) "MIC ON" else "MIC OFF")
+                toggleMicButton!!.setBackgroundTintList(
+                    getResources().getColorStateList(
+                        if (isMicEnabled) android.R.color.holo_green_dark else android.R.color.holo_red_dark,
+                        getTheme()
+                    )
+                )
+
+                toggleCameraButton!!.setText(if (isCameraEnabled) "CAM ON" else "CAM OFF")
+                toggleCameraButton!!.setBackgroundTintList(
+                    getResources().getColorStateList(
+                        if (isCameraEnabled) android.R.color.holo_green_dark else android.R.color.holo_red_dark,
+                        getTheme()
+                    )
+                )
+            }
+        })
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String?>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (hasAllPermissions()) {
+                startMediaProjectionService()
+                requestScreenShare()
+            } else {
+                Toast.makeText(this, "Permissions required for WebRTC", Toast.LENGTH_LONG).show()
+                finish()
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        if (webrtcClient != null) {
+            webrtcClient!!.release()
+        }
+        stopMediaProjectionService()
+        super.onDestroy()
+    }
+
+    override fun onPause() {
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onStop() {
+        super.onStop()
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+
+        // Auto-enter PiP mode when user navigates away (if publishing and supported)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isPublishing && !isInPictureInPictureMode) {
+            enterPictureInPictureMode()
+        }
+    }
+    fun requestScreenShare() {
+        val manager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        startActivityForResult(manager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION)
+    }
+
+
+    override fun onPublishStarted() {
+        Log.d(TAG, "Publish started successfully")
+        runOnUiThread(Runnable {
+            isPublishing = true
+            publishButton!!.setText("STOP PUBLISH")
+            statusIndicatorTextView!!.setTextColor(getResources().getColor(R.color.green))
+            statusIndicatorTextView!!.setText("Live")
+
+            publishButton!!.setEnabled(true)
+            publishButton!!.setBackgroundTintList(
+                getResources().getColorStateList(android.R.color.holo_red_dark, getTheme())
+            )
+            enableControlButtons(true)
+            Toast.makeText(this, "Publishing started", Toast.LENGTH_SHORT).show()
+        })
+    }
+
+    override fun onPublishStopped() {
+        Log.d(TAG, "Publish stopped")
+        runOnUiThread(Runnable {
+            isPublishing = false
+            publishButton!!.setText("START PUBLISH")
+            publishButton!!.setEnabled(true)
+            publishButton!!.setBackgroundTintList(
+                getResources().getColorStateList(android.R.color.holo_blue_dark, getTheme())
+            )
+            statusIndicatorTextView!!.setTextColor(getResources().getColor(R.color.red))
+            statusIndicatorTextView!!.setText("Disconnected")
+            Toast.makeText(this, "Publishing stopped", Toast.LENGTH_SHORT).show()
+
+            // Exit PiP mode when publishing stops
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isInPictureInPictureMode) {
+                // The system will automatically exit PiP when the activity finishes
+                // or you can call moveTaskToBack(false) to minimize instead
+            }
+        })
+    }
+
+    override fun onPublishFailed(error: String?) {
+        Log.e(TAG, "Publish failed: " + error)
+        runOnUiThread(Runnable {
+            isPublishing = false
+            publishButton!!.setText("START PUBLISH")
+            publishButton!!.setEnabled(true)
+            publishButton!!.setBackgroundTintList(
+                getResources().getColorStateList(android.R.color.holo_blue_dark, getTheme())
+            )
+            Toast.makeText(this, "Publish failed: " + error, Toast.LENGTH_LONG).show()
+            statusIndicatorTextView!!.setTextColor(getResources().getColor(R.color.red))
+            statusIndicatorTextView!!.setText("Disconnected")
+        })
+    }
+
+    override fun onSubscribeStarted() {
+        Log.d(TAG, "Subscribe started")
+    }
+
+    override fun onSubscribeStopped() {
+        Log.d(TAG, "Subscribe stopped")
+    }
+
+    override fun onSubscribeFailed(error: String?) {
+        Log.e(TAG, "Subscribe failed: " + error)
+    }
+
+    override fun onPreviewStarted() {
+        Log.d(TAG, "Preview started")
+        runOnUiThread(Runnable {
+            enableControlButtons(true)
+        })
+    }
+
+    override fun onPreviewStopped() {
+        Log.d(TAG, "Preview stopped")
+        runOnUiThread(Runnable {
+            enableControlButtons(false)
+        })
+    }
+
+    override fun onIceConnectionStateChanged(state: IRed5WebrtcClient.IceConnectionState?) {
+        Log.d(TAG, "ICE connection state: " + state)
+
+        // Handle connection state changes
+        if (state == IRed5WebrtcClient.IceConnectionState.CONNECTED) {
+            runOnUiThread(Runnable {
+                Toast.makeText(this, "Connected to server", Toast.LENGTH_SHORT).show()
+            })
+        } else if (state == IRed5WebrtcClient.IceConnectionState.DISCONNECTED ||
+            state == IRed5WebrtcClient.IceConnectionState.FAILED
+        ) {
+            runOnUiThread(Runnable {
+                Toast.makeText(this, "Connection lost", Toast.LENGTH_SHORT).show()
+            })
+            statusIndicatorTextView!!.setTextColor(getResources().getColor(R.color.red))
+            statusIndicatorTextView!!.setText("Disconnected")
+        }
+    }
+
+    override fun onConnectionStateChanged(state: IRed5WebrtcClient.PeerConnectionState?) {
+        Log.d(TAG, "Peer connection state: " + state)
+    }
+
+
+    override fun onError(error: String?) {
+        Log.e(TAG, "General error: " + error)
+        runOnUiThread(Runnable {
+            Toast.makeText(this, "Error: " + error, Toast.LENGTH_LONG).show()
+        })
+    }
+
+    override fun onLicenseValidated(validated: Boolean, message: String?) {
+        if (validated) {
+            Log.d(TAG, "WHIP client initialized")
+            webrtcClient?.startPreview()
+            Toast.makeText(this, "License check success", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "License check failed.", Toast.LENGTH_SHORT).show()
+        }
+        Log.d(TAG, "License validation status: " + validated + " message: " + message)
+    }
+
+    override fun onChatMessageReceived(
+        channel: String?,
+        message: JsonElement?
+    ) {
+
+    }
+
+    override fun onChatConnected() {
+    }
+
+    override fun onChatDisconnected() {
+    }
+
+    override fun onChatSendError(channel: String?, errorMessage: String?) {
+    }
+
+    override fun onChatSendSuccess(channel: String?, timetoken: Long?) {
+    }
+
+    override fun onChatError(error: String?) {
+
+    }
+
+    override fun onRtcStats(stats: RTCStats?) {
+        Log.d(TAG, stats.toString())
+
+    }
+
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?,
+        caller: ComponentCaller
+    ) {
+        super.onActivityResult(requestCode, resultCode, data, caller)
+        if (requestCode == REQUEST_MEDIA_PROJECTION && resultCode == RESULT_OK && data != null) {
+            initializeWebrtcClient()
+
+            webrtcClient?.config!!.mediaProjectionPermissionResultData = data
+            webrtcClient?.config!!.mediaProjectionCallback = object : MediaProjection.Callback() {
+                override fun onStop() {
+                    Log.d(TAG, "Screen capture stopped")
+                }
+            }
+            webrtcClient?.startPreview()
+
+        }
+    }
+
+    companion object {
+        private const val TAG = "StreamManagerPublishActivity"
+        private const val PERMISSION_REQUEST_CODE = 1001
+
+        private val REQUIRED_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO
+            )
+        }
+        private const val REQUEST_MEDIA_PROJECTION = 1001
+
+    }
 }
