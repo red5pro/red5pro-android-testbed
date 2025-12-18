@@ -31,6 +31,7 @@ Build low-latency live streaming apps with the Red5 Android WebRTC SDK. Stream v
    - 8.2 [Switch Camera](#switch-camera)
    - 8.3 [Mute/Unmute Microphone](#muteunmute-microphone)
    - 8.4 [Picture in Picture (PiP) Mode](#picture-in-picture-pip-mode)
+   - 8.5 [Screen Share Publishing](#screen-share-publishing)
 9. [Chat Integration](#chat-integration)
    - 9.1 [Chat Overview](#chat-overview)
    - 9.2 [Chat Setup](#chat-setup)
@@ -74,8 +75,17 @@ Ensure you have the necessary permissions in your `AndroidManifest.xml` for publ
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
 ```
+
+**For screen sharing, additional permissions are required:**
+
+```xml
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" /> <!-- Android 13+ -->
+```
+
+See the [Screen Share Publishing](#screen-share-publishing) section for complete implementation details.
 
 ## Requirements
 
@@ -430,11 +440,11 @@ protected void onUserLeaveHint() {
 public void enterPictureInPictureMode() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         Rational aspectRatio = new Rational(surfaceView.getWidth(), surfaceView.getHeight());
-        
+
         PictureInPictureParams params = new PictureInPictureParams.Builder()
             .setAspectRatio(aspectRatio)
             .build();
-        
+
         boolean result = enterPictureInPictureMode(params);
         if (!result) {
             Toast.makeText(this, "Could not enter Picture-in-Picture mode", Toast.LENGTH_SHORT).show();
@@ -442,6 +452,227 @@ public void enterPictureInPictureMode() {
     }
 }
 ```
+
+### Screen Share Publishing
+
+The Red5 Android WebRTC SDK supports screen sharing, allowing you to broadcast your device screen with audio. This is perfect for presentations, demos, tutorials, and remote assistance applications.
+
+#### Required Permissions
+
+In addition to the standard permissions, screen sharing requires additional permissions in your `AndroidManifest.xml`:
+
+```xml
+<!-- Standard WebRTC permissions -->
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+<!-- Screen share specific permissions -->
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" /> <!-- Android 13+ -->
+```
+
+**Note:** For Android 13 (API level 33) and above, `POST_NOTIFICATIONS` permission is required for foreground service notifications.
+
+#### Requesting Permissions
+
+Request all necessary permissions before starting screen share:
+
+**Kotlin:**
+```kotlin
+private val REQUIRED_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    arrayOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.RECORD_AUDIO,
+        Manifest.permission.POST_NOTIFICATIONS
+    )
+} else {
+    arrayOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.RECORD_AUDIO
+    )
+}
+
+private fun checkPermissions() {
+    if (hasAllPermissions()) {
+        startMediaProjectionService()
+        requestScreenShare()
+    } else {
+        ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, PERMISSION_REQUEST_CODE)
+    }
+}
+
+private fun hasAllPermissions(): Boolean {
+    return REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+    }
+}
+```
+
+#### MediaProjection Service
+
+Screen sharing requires a foreground service to continue broadcasting when the app is backgrounded. Declare the service in your `AndroidManifest.xml`:
+
+```xml
+<service
+    android:name=".MediaProjectionService"
+    android:foregroundServiceType="mediaProjection"
+    android:exported="false" />
+```
+
+Start the service before beginning screen capture:
+
+**Kotlin:**
+```kotlin
+private fun startMediaProjectionService() {
+    val serviceIntent = Intent(this, MediaProjectionService::class.java)
+    ContextCompat.startForegroundService(this, serviceIntent)
+}
+```
+
+#### Requesting Screen Capture Permission
+
+Request media projection permission from the user:
+
+**Kotlin:**
+```kotlin
+private fun requestScreenShare() {
+    val manager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+    startActivityForResult(manager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION)
+}
+
+companion object {
+    private const val REQUEST_MEDIA_PROJECTION = 1001
+}
+```
+
+#### Creating WebRTC Client with Screen Source
+
+Set the video source to `SCREEN` when building your `Red5WebrtcClient`:
+
+**Kotlin:**
+```kotlin
+override fun onActivityResult(
+    requestCode: Int,
+    resultCode: Int,
+    data: Intent?,
+    caller: ComponentCaller
+) {
+    super.onActivityResult(requestCode, resultCode, data, caller)
+    if (requestCode == REQUEST_MEDIA_PROJECTION && resultCode == RESULT_OK && data != null) {
+        initializeWebrtcClient(data)
+    }
+}
+
+private fun initializeWebrtcClient(mediaProjectionData: Intent) {
+    webrtcClient = IRed5WebrtcClient.builder()
+        .setActivity(this)
+        .setVideoSource(IRed5WebrtcClient.StreamSource.SCREEN)  // Use SCREEN source
+        .setLicenseKey(YOUR_LICENSE_KEY)
+        .setStreamManagerHost(YOUR_STREAM_MANAGER_HOST)
+        .setUserName(USERNAME_IF_AUTH_ENABLED)
+        .setPassword(PASSWORD_IF_AUTH_ENABLED)
+        .setVideoEnabled(true)
+        .setAudioEnabled(true)
+        .setVideoWidth(1280)
+        .setVideoHeight(720)
+        .setVideoFps(30)
+        .setVideoBitrate(1500)
+        .setVideoRenderer(surfaceView)
+        .setEventListener(this)
+        .build()
+
+    // Set media projection data
+    webrtcClient?.config?.mediaProjectionPermissionResultData = mediaProjectionData
+    webrtcClient?.config?.mediaProjectionCallback = object : MediaProjection.Callback() {
+        override fun onStop() {
+            Log.d(TAG, "Screen capture stopped")
+        }
+    }
+
+    // Start preview after license validation
+    webrtcClient?.startPreview()
+}
+```
+
+#### Publishing Screen Share
+
+After successful preview initialization, start publishing:
+
+**Kotlin:**
+```kotlin
+override fun onLicenseValidated(validated: Boolean, message: String?) {
+    if (validated) {
+        webrtcClient?.startPreview()
+        Toast.makeText(this, "License check success", Toast.LENGTH_SHORT).show()
+    } else {
+        Toast.makeText(this, "License check failed: $message", Toast.LENGTH_SHORT).show()
+    }
+}
+
+override fun onPreviewStarted() {
+    // Preview ready, enable publish button
+    publishButton?.isEnabled = true
+}
+
+private fun startPublish() {
+    webrtcClient?.publish(YOUR_STREAM_NAME)
+}
+```
+
+#### Microphone Control During Screen Share
+
+You can toggle the microphone while screen sharing to include or exclude audio:
+
+**Kotlin:**
+```kotlin
+private var isMicEnabled = true
+
+private fun toggleMicrophone() {
+    isMicEnabled = !isMicEnabled
+    webrtcClient?.toggleSendAudio(isMicEnabled)
+
+    // Update UI
+    micButton?.text = if (isMicEnabled) "MIC ON" else "MIC OFF"
+}
+```
+
+#### Stopping Screen Share
+
+Stop publishing and clean up:
+
+**Kotlin:**
+```kotlin
+private fun stopPublish() {
+    webrtcClient?.stopPublish()
+    stopMediaProjectionService()
+}
+
+private fun stopMediaProjectionService() {
+    val serviceIntent = Intent(this, MediaProjectionService::class.java)
+    stopService(serviceIntent)
+}
+
+override fun onDestroy() {
+    webrtcClient?.release()
+    stopMediaProjectionService()
+    super.onDestroy()
+}
+```
+
+#### Complete Example
+
+For a complete working implementation of screen share functionality with Picture-in-Picture support and foreground service management, see the `ScreenShareActivity` class in the testbed example project.
+
+**Key Features Demonstrated:**
+- Media projection permission handling
+- Foreground service lifecycle management
+- Screen capture with audio
+- Real-time microphone toggle
+- Connection state management
+- Picture-in-Picture mode support
 
 ## Chat Integration
 
