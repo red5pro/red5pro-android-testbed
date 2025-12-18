@@ -45,7 +45,7 @@
         android:gravity="center"
         android:orientation="horizontal"
         android:padding="10dp">
-
+<!--
         <Button
             android:id="@+id/btn_switch_camera"
             android:layout_width="100dp"
@@ -54,7 +54,7 @@
             android:text="SCREEN"
             android:textColor="#FFFFFF"
             android:textSize="10sp"
-            android:backgroundTint="#AA000000" />
+            android:backgroundTint="#AA000000" />-->
 
         <Button
             android:id="@+id/btn_toggle_mic"
@@ -66,14 +66,14 @@
             android:textSize="12sp"
             android:backgroundTint="#AA000000" />
 
-        <Button
+ <!--       <Button
             android:id="@+id/btn_toggle_camera"
             android:layout_width="80dp"
             android:layout_height="50dp"
             android:text="CAM ON"
             android:textColor="#FFFFFF"
             android:textSize="12sp"
-            android:backgroundTint="#AA000000" />
+            android:backgroundTint="#AA000000" />-->
 
     </LinearLayout>
 

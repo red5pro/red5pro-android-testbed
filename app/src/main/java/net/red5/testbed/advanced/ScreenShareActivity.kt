@@ -15,7 +15,6 @@ import android.util.Log
 import android.util.Rational
 import android.view.View
 import android.widget.Button
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -37,9 +36,7 @@ import net.red5.testbed.SettingsActivity
 class ScreenShareActivity : AppCompatActivity(), Red5EventListener {
     private var surfaceView: Red5Renderer? = null
     private var publishButton: Button? = null
-    private var switchCameraButton: Button? = null
     private var toggleMicButton: Button? = null
-    private var toggleCameraButton: Button? = null
 
     private var statusIndicatorTextView: TextView? = null
     private var controlsLayout: LinearLayout? = null
@@ -47,11 +44,8 @@ class ScreenShareActivity : AppCompatActivity(), Red5EventListener {
     private var webrtcClient: IRed5WebrtcClient? = null
     private var isPublishing = false
     private var isMicEnabled = true
-    private var isCameraEnabled = true
     private var isInPictureInPictureMode = false
-    private var blackOverlay: FrameLayout? = null
     private var isServiceRunning = false
-    private var isScreenShare = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,34 +58,16 @@ class ScreenShareActivity : AppCompatActivity(), Red5EventListener {
     private fun initViews() {
         surfaceView = findViewById<Red5Renderer>(R.id.surface_view)
         publishButton = findViewById<Button>(R.id.btn_publish)
-        switchCameraButton = findViewById<Button>(R.id.btn_switch_camera)
         toggleMicButton = findViewById<Button>(R.id.btn_toggle_mic)
-        toggleCameraButton = findViewById<Button>(R.id.btn_toggle_camera)
         controlsLayout = findViewById<LinearLayout>(R.id.controls_layout)
         statusIndicatorTextView = findViewById<TextView>(R.id.status_indicator_text)
-        blackOverlay = findViewById<FrameLayout>(R.id.blackOverlay)
+
         // Main publish button
         publishButton!!.setOnClickListener(View.OnClickListener { v: View? ->
             if (isPublishing) {
                 stopPublish()
             } else {
                 startPublish()
-            }
-        })
-
-        // Switch between screen share and front camera
-        switchCameraButton!!.setOnClickListener(View.OnClickListener { v: View? ->
-            if (webrtcClient != null) {
-                isScreenShare = !isScreenShare
-                if (isScreenShare) {
-                    // Switching to screen share - need to request permission again
-                    requestScreenShare()
-                    switchCameraButton!!.setText("SCREEN")
-                } else {
-                    // Switching to front camera
-                    webrtcClient!!.changeVideoSource(IRed5WebrtcClient.StreamSource.FRONT_CAMERA)
-                    switchCameraButton!!.setText("CAMERA")
-                }
             }
         })
 
@@ -112,30 +88,7 @@ class ScreenShareActivity : AppCompatActivity(), Red5EventListener {
             }
         })
 
-        toggleCameraButton!!.setOnClickListener(View.OnClickListener { v: View? ->
-            if (webrtcClient != null) {
-                isCameraEnabled = !isCameraEnabled
-                webrtcClient!!.toggleSendVideo(isCameraEnabled)
-                if (isCameraEnabled) {
-                    blackOverlay!!.setVisibility(View.GONE)
-                } else {
-                    blackOverlay!!.setVisibility(View.VISIBLE)
-                }
-
-
-                toggleCameraButton!!.setText(if (isCameraEnabled) "CAM ON" else "CAM OFF")
-                toggleCameraButton!!.setBackgroundTintList(
-                    getResources().getColorStateList(
-                        if (isCameraEnabled) android.R.color.holo_green_dark else android.R.color.holo_red_dark,
-                        getTheme()
-                    )
-                )
-            }
-        })
-
-        switchCameraButton!!.setEnabled(false)
         toggleMicButton!!.setEnabled(false)
-        toggleCameraButton!!.setEnabled(false)
     }
 
     private fun checkPermissions() {
@@ -287,22 +240,12 @@ class ScreenShareActivity : AppCompatActivity(), Red5EventListener {
 
     private fun enableControlButtons(enable: Boolean) {
         runOnUiThread(Runnable {
-            switchCameraButton!!.setEnabled(enable)
             toggleMicButton!!.setEnabled(enable)
-            toggleCameraButton!!.setEnabled(enable)
             if (enable) {
                 toggleMicButton!!.setText(if (isMicEnabled) "MIC ON" else "MIC OFF")
                 toggleMicButton!!.setBackgroundTintList(
                     getResources().getColorStateList(
                         if (isMicEnabled) android.R.color.holo_green_dark else android.R.color.holo_red_dark,
-                        getTheme()
-                    )
-                )
-
-                toggleCameraButton!!.setText(if (isCameraEnabled) "CAM ON" else "CAM OFF")
-                toggleCameraButton!!.setBackgroundTintList(
-                    getResources().getColorStateList(
-                        if (isCameraEnabled) android.R.color.holo_green_dark else android.R.color.holo_red_dark,
                         getTheme()
                     )
                 )
@@ -518,22 +461,15 @@ class ScreenShareActivity : AppCompatActivity(), Red5EventListener {
     ) {
         super.onActivityResult(requestCode, resultCode, data, caller)
         if (requestCode == REQUEST_MEDIA_PROJECTION && resultCode == RESULT_OK && data != null) {
-            if (webrtcClient == null) {
-                // Initial setup
-                initializeWebrtcClient()
-                webrtcClient?.config!!.mediaProjectionPermissionResultData = data
-                webrtcClient?.config!!.mediaProjectionCallback = object : MediaProjection.Callback() {
-                    override fun onStop() {
-                        Log.d(TAG, "Screen capture stopped")
-                    }
+            // Initial setup for screen share
+            initializeWebrtcClient()
+            webrtcClient?.config!!.mediaProjectionPermissionResultData = data
+            webrtcClient?.config!!.mediaProjectionCallback = object : MediaProjection.Callback() {
+                override fun onStop() {
+                    Log.d(TAG, "Screen capture stopped")
                 }
-                webrtcClient?.startPreview()
-            } else {
-                // Switching back to screen share
-                webrtcClient?.config!!.mediaProjectionPermissionResultData = data
-                webrtcClient!!.changeVideoSource(IRed5WebrtcClient.StreamSource.SCREEN)
-
             }
+            webrtcClient?.startPreview()
         }
     }
 
