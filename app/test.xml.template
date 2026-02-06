@@ -2,6 +2,7 @@
 <red5pro>
     <tests>
         <entry key="license_key" value="@@LICENSE_KEY@@" />
+        <entry key="license_manager" value="@@LICENSE_MANAGER@@" />
         <entry key="sm_endpoint" value="@@SM_ENDPOINT@@" />
         <entry key="standalone_endpoint" value="@@STANDALONE_ENDPOINT@@" />
     </tests>
