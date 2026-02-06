@@ -3,6 +3,7 @@ i#!bin/bash
  rm -rf dist
  docker build --platform=linux/amd64 --progress=plain \
    --build-arg LICENSE_KEY="XXXX-XXXX-XXXX-XXXX" \
+   --build-arg LICENSE_MANAGER="license.red5.net" \
    --build-arg SM_ENDPOINT="https://todd.cloud.red5.net" \
    --build-arg STANDALONE_ENDPOINT="https://todd-oci.red5pro.net" \
    -t android-testbed-builder .

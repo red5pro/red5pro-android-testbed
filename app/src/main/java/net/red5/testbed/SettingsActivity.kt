@@ -9,8 +9,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import net.red5.android.api.Red5WebrtcClientConfig
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
@@ -32,6 +34,9 @@ class SettingsActivity : AppCompatActivity() {
     private var etPubnubPublishKey: EditText? = null
     private var etPubnubSubscribeKey: EditText? = null
 
+    private var tvVersion: TextView? = null
+    private var tvLM: TextView? = null
+
     private var btnSave: Button? = null
 
     private var sharedPreferences: SharedPreferences? = null
@@ -39,6 +44,8 @@ class SettingsActivity : AppCompatActivity() {
     private var defaultLicenseKey: String = ""
     private var defaultStreamManagerEndpoint: String = ""
     private var defaultStandaloneEndpoint: String = ""
+    private var defaultVersion: String = ""
+    private var defaultLicenseManager: String = ""
 
     private fun valueOr(value: String?, defaultValue: String): String {
         return if (value == null || value == "N/A") defaultValue else value
@@ -54,6 +61,8 @@ class SettingsActivity : AppCompatActivity() {
         defaultLicenseKey = valueOr(config["license_key"], "")
         defaultStreamManagerEndpoint = valueOr(config["sm_endpoint"], "")
         defaultStandaloneEndpoint = valueOr(config["standalone_endpoint"], "")
+        defaultVersion = "SDK Version: " + valueOr(Red5WebrtcClientConfig.getVersion(), "N/A")
+        defaultLicenseManager = valueOr(config["license_manager"], "LM: N/A")
 
         initViews()
         loadSettings()
@@ -115,6 +124,9 @@ class SettingsActivity : AppCompatActivity() {
         rbPassive = findViewById<RadioButton>(R.id.rb_passive)
         etPubnubPublishKey = findViewById<EditText>(R.id.et_pubnub_publish_key)
         etPubnubSubscribeKey = findViewById<EditText>(R.id.et_pubnub_subscribe_key)
+
+        tvVersion = findViewById<TextView>(R.id.tv_version)
+        tvLM = findViewById<TextView>(R.id.tv_lm)
     }
 
     private fun loadSettings() {
@@ -141,7 +153,6 @@ class SettingsActivity : AppCompatActivity() {
         val pubnubPublishKey: String = sharedPreferences!!.getString(KEY_PUBNUB_PUBLISH_KEY, "")!!
         val pubnubSubscribeKey: String = sharedPreferences!!.getString(KEY_PUBNUB_SUBSCRIBE_KEY, "")!!
 
-
         etLicenseKey!!.setText(licenseKey)
         etStreamManagerHost!!.setText(streamManagerHost)
         etStandaloneServerIp!!.setText(standaloneServerIp)
@@ -152,6 +163,9 @@ class SettingsActivity : AppCompatActivity() {
         etPassword!!.setText(password)
         etPubnubPublishKey!!.setText(pubnubPublishKey)
         etPubnubSubscribeKey!!.setText(pubnubSubscribeKey)
+
+        tvVersion!!.setText(defaultVersion)
+        tvLM!!.setText(defaultLicenseManager)
 
         when (dtlsSetup) {
             "active" -> rbActive!!.isChecked = true
@@ -172,10 +186,6 @@ class SettingsActivity : AppCompatActivity() {
         val password = etPassword!!.getText().toString().trim { it <= ' ' }
         val pubnubPublishKey = etPubnubPublishKey!!.getText().toString().trim { it <= ' ' }
         val pubnubSubscribeKey = etPubnubSubscribeKey!!.getText().toString().trim { it <= ' ' }
-
-
-
-
 
         if (appName.isEmpty()) appName = "live"
         if (nodeGroup.isEmpty()) nodeGroup = "default"
