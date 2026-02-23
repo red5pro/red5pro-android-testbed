@@ -7,11 +7,15 @@ import android.os.Bundle
 import android.util.Log
 import android.util.Rational
 import android.view.View
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.google.gson.JsonElement
 import net.red5.android.api.IRed5WebrtcClient
 import net.red5.android.api.IRed5WebrtcClient.Red5EventListener
@@ -31,6 +35,15 @@ class StreamManagerSubscribeActivity : AppCompatActivity(), Red5EventListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Make fullscreen - hide action bar and system bars
+        supportActionBar?.hide()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, window.decorView).let { controller ->
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+
         setContentView(R.layout.activity_simple_subscribe)
 
         initViews()
@@ -58,6 +71,22 @@ class StreamManagerSubscribeActivity : AppCompatActivity(), Red5EventListener {
             .setStreamManagerHost(SettingsActivity.Companion.getStreamManagerHost(this))
             .setStreamName(SettingsActivity.Companion.getStreamName(this))
             .setVideoRenderer(surfaceView)
+            .setDataChannelListener(object : IRed5WebrtcClient.DataChannelListener {
+                override fun onDataChannelOpen() {
+                    Log.i(TAG, "Data Channel Open")
+
+                }
+
+                override fun onDataChannelClosed() {}
+
+                override fun onDataChannelMessage(message: String?) {
+                    Log.i(TAG, "Data channel message received: $message")
+                }
+
+                override fun onDataChannelMessage(data: ByteArray?) {}
+
+                override fun onDataChannelError(error: String?) {}
+            })
             .setNodeGroup(SettingsActivity.getNodeGroup(this))
             .setEventListener(this)
             .build()
