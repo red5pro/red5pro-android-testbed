@@ -284,6 +284,25 @@
             android:layout_marginTop="40dp"
             android:layout_marginBottom="24dp" />
 
+        <!-- Details -->
+        <TextView
+            android:id="@+id/tv_version"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SDK Version: N/A"
+            android:textSize="16sp"
+            android:layout_below="@id/btn_save"
+            android:layout_marginTop="24dp" />
+
+        <TextView
+            android:id="@+id/tv_lm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="LM: N/A"
+            android:textSize="16sp"
+            android:layout_below="@id/tv_version"
+            android:layout_marginTop="24dp" />
+
     </RelativeLayout>
 
 </ScrollView>

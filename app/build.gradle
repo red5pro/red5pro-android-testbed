@@ -20,10 +20,12 @@ android {
         doLast {
             // 1. Read the license key from the environment variable. Fallback for local builds.
             def licenseKey = System.getenv("LICENSE_KEY") ?: ""
+            def licenseManager = System.getenv("LICENSE_MANAGER") ?: "LM: N/A"
             def smEndpoint = System.getenv("SM_ENDPOINT") ?: ""
             def standaloneEndpoint = System.getenv("STANDALONE_ENDPOINT") ?: ""
 
             println "LICENSE_KEY from env: $licenseKey"
+            println "LICENSE_MANAGER from env: $licenseManager"
             println "SM_ENDPOINT from env: $smEndpoint"
             println "STANDALONE_ENDPOINT from env: $standaloneEndpoint"
 
@@ -32,7 +34,7 @@ android {
             destinationFile.parentFile.mkdirs()
 
             String content = templateFile.text
-            String newContent = content.replace('@@LICENSE_KEY@@', licenseKey).replace("@@SM_ENDPOINT@@", smEndpoint).replace("@@STANDALONE_ENDPOINT@@", standaloneEndpoint)
+            String newContent = content.replace('@@LICENSE_KEY@@', licenseKey).replace('@@LICENSE_MANAGER@@', licenseManager).replace("@@SM_ENDPOINT@@", smEndpoint).replace("@@STANDALONE_ENDPOINT@@", standaloneEndpoint)
 
             destinationFile.write(newContent)
         }

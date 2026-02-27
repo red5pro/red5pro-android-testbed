@@ -26,11 +26,13 @@ COPY . /workspace
 
 # Declare a build argument for your service URL
 ARG LICENSE_KEY
+ARG LICENSE_MANAGER
 ARG SM_ENDPOINT
 ARG STANDALONE_ENDPOINT
 
 # Use Gradle Wrapper to build .aar
 RUN export LICENSE_KEY=${LICENSE_KEY} && \
+    export LICENSE_MANAGER=${LICENSE_MANAGER} && \
     export SM_ENDPOINT=${SM_ENDPOINT} && \
     export STANDALONE_ENDPOINT=${STANDALONE_ENDPOINT} && \
     ./gradlew assembleDebug && \
