@@ -14,6 +14,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import net.red5.testbed.advanced.HighQualityPublishHigherLatencyActivity
+import net.red5.testbed.advanced.JpegFolderPublishActivity
 import net.red5.testbed.basic.ChatActivity
 import net.red5.testbed.advanced.ConferenceActivity
 import net.red5.testbed.advanced.VoiceOnlyConferenceActivity
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         addActivity(VoiceOnlyConferenceActivity::class.java, "Voice Only Conference")
 
         addActivity(HighQualityPublishHigherLatencyActivity::class.java, "High Quality SM Publish")
+        addActivity(JpegFolderPublishActivity::class.java, "JPEG Folder Publish")
 
         addActivity(SettingsActivity::class.java, "Settings")
     }

@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:allowBackup="true"
@@ -76,6 +78,12 @@
 
         <activity
             android:name="net.red5.testbed.advanced.VoiceOnlyConferenceActivity"
+            android:configChanges="orientation|keyboard|screenSize|smallestScreenSize|screenLayout"
+            android:exported="true"
+            android:supportsPictureInPicture="true" />
+
+        <activity
+            android:name="net.red5.testbed.advanced.JpegFolderPublishActivity"
             android:configChanges="orientation|keyboard|screenSize|smallestScreenSize|screenLayout"
             android:exported="true"
             android:supportsPictureInPicture="true" />

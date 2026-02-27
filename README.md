@@ -31,25 +31,31 @@ Build low-latency live streaming apps with the Red5 Android WebRTC SDK. Stream v
    - 8.2 [Switch Camera](#switch-camera)
    - 8.3 [Mute/Unmute Microphone](#muteunmute-microphone)
    - 8.4 [Picture in Picture (PiP) Mode](#picture-in-picture-pip-mode)
-9. [Chat Integration](#chat-integration)
-   - 9.1 [Chat Overview](#chat-overview)
-   - 9.2 [Chat Setup](#chat-setup)
-   - 9.3 [Chat Operations](#chat-operations)
-   - 9.4 [Listening for Chat Events](#listening-for-chat-events)
-   - 9.5 [Complete Example](#complete-example)
-10. [Conferencing](#conferencing)
-- 10.1 [Joining a Conference Room](#joining-a-conference-room)
-- 10.2 [Leaving a Conference Room](#leaving-a-conference-room)
-- 10.3 [Listening for Conference Events](#listening-for-conference-events)
-- 10.4 [Complete Example](#complete-example-1)
-11. [Stats Collector](#stats-collector)
-- 11.1 [Overview](#overview)
-- 11.2 [Enabling Stats Collection](#enabling-stats-collection)
-- 11.3 [Receiving Stats](#receiving-stats)
-- 11.4 [Available Statistics](#available-statistics)
-- 11.5 [Audio Levels](#audio-levels)
-- 11.6 [Conference Stats](#conference-stats)
-- 11.7 [Complete Example](#complete-example-2)
+9. [Custom Video Capturer](#custom-video-capturer)
+   - 9.1 [Overview](#overview-1)
+   - 9.2 [Implementing a Custom Capturer](#implementing-a-custom-capturer)
+   - 9.3 [Registering the Capturer with the SDK](#registering-the-capturer-with-the-sdk)
+   - 9.4 [Rules and Pitfalls](#rules-and-pitfalls)
+   - 9.5 [JPEG Folder Capturer Example](#jpeg-folder-capturer-example)
+10. [Chat Integration](#chat-integration)
+   - 10.1 [Chat Overview](#chat-overview)
+   - 10.2 [Chat Setup](#chat-setup)
+   - 10.3 [Chat Operations](#chat-operations)
+   - 10.4 [Listening for Chat Events](#listening-for-chat-events)
+   - 10.5 [Complete Example](#complete-example)
+11. [Conferencing](#conferencing)
+   - 11.1 [Joining a Conference Room](#joining-a-conference-room)
+   - 11.2 [Leaving a Conference Room](#leaving-a-conference-room)
+   - 11.3 [Listening for Conference Events](#listening-for-conference-events)
+   - 11.4 [Complete Example](#complete-example-1)
+12. [Stats Collector](#stats-collector)
+   - 12.1 [Overview](#overview)
+   - 12.2 [Enabling Stats Collection](#enabling-stats-collection)
+   - 12.3 [Receiving Stats](#receiving-stats)
+   - 12.4 [Available Statistics](#available-statistics)
+   - 12.5 [Audio Levels](#audio-levels)
+   - 12.6 [Conference Stats](#conference-stats)
+   - 12.7 [Complete Example](#complete-example-2)
 
 ## Installation
 
@@ -442,6 +448,205 @@ public void enterPictureInPictureMode() {
     }
 }
 ```
+
+## Custom Video Capturer
+
+### Overview
+
+The SDK allows you to replace the camera entirely with any video source you choose — pre-recorded frames, generated graphics, screen regions, decoded video files, etc. You do this by extending `Red5CustomVideoCapturer` (from `net.red5.android.api`) and handing an instance to the client before publishing.
+
+`Red5CustomVideoCapturer` is the public API class for custom video sources. It extends the SDK-internal `CustomVideoCapturer` and exposes the single method you need: `writeFrame(VideoFrame)`. All other WebRTC wiring — surface texture helper, capturer observer, video track creation — is handled by the SDK.
+
+### Implementing a Custom Capturer
+
+Subclass `Red5CustomVideoCapturer` and override the three lifecycle methods. Push frames by calling `writeFrame()`.
+
+**Kotlin skeleton:**
+
+```kotlin
+import net.red5.android.api.Red5CustomVideoCapturer
+import org.webrtc.JavaI420Buffer
+import org.webrtc.VideoFrame
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import android.os.SystemClock
+
+class MyCustomCapturer : Red5CustomVideoCapturer() {
+
+    private var executor: ScheduledExecutorService? = null
+    private var targetFps = 30
+
+    override fun startCapture(width: Int, height: Int, framerate: Int) {
+        // Do NOT call super.startCapture() — we push frames manually via writeFrame().
+        targetFps = if (framerate > 0) framerate else 30
+        val intervalMs = 1000L / targetFps
+
+        executor = Executors.newSingleThreadScheduledExecutor()
+        executor!!.scheduleAtFixedRate(::produceFrame, 0, intervalMs, TimeUnit.MILLISECONDS)
+    }
+
+    @Throws(InterruptedException::class)
+    override fun stopCapture() {
+        executor?.shutdown()
+        executor = null
+        super.stopCapture()
+    }
+
+    override fun dispose() {
+        executor?.shutdownNow()
+        executor = null
+        super.dispose()
+    }
+
+    private fun produceFrame() {
+        // Build a JavaI420Buffer with your pixel data, then wrap it in a VideoFrame.
+        // Replace this with your actual frame source.
+        val i420 = buildMyFrame()
+
+        val captureTimeNs = TimeUnit.MILLISECONDS.toNanos(SystemClock.elapsedRealtime())
+        val frame = VideoFrame(i420, 0 /* rotation */, captureTimeNs)
+
+        // Hand the frame to the WebRTC pipeline.
+        // writeFrame() calls frame.release() internally — do NOT release it yourself.
+        writeFrame(frame)
+    }
+
+    private fun buildMyFrame(): JavaI420Buffer {
+        // Allocate and fill Y/U/V ByteBuffers for your frame here.
+        // See JpegFolderVideoCapturer.kt for a complete ARGB → I420 conversion example.
+        TODO("Fill and return a JavaI420Buffer")
+    }
+}
+```
+
+**Java skeleton:**
+
+```java
+import net.red5.android.api.Red5CustomVideoCapturer;
+import org.webrtc.JavaI420Buffer;
+import org.webrtc.VideoFrame;
+import android.os.SystemClock;
+import java.util.concurrent.*;
+
+public class MyCustomCapturer extends Red5CustomVideoCapturer {
+
+    private ScheduledExecutorService executor;
+    private int targetFps = 30;
+
+    @Override
+    public void startCapture(int width, int height, int framerate) {
+        // Do NOT call super.startCapture() — we push frames manually via writeFrame().
+        targetFps = framerate > 0 ? framerate : 30;
+        long intervalMs = 1000L / targetFps;
+
+        executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleAtFixedRate(this::produceFrame, 0, intervalMs, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public void stopCapture() throws InterruptedException {
+        if (executor != null) { executor.shutdown(); executor = null; }
+        super.stopCapture();
+    }
+
+    @Override
+    public void dispose() {
+        if (executor != null) { executor.shutdownNow(); executor = null; }
+        super.dispose();
+    }
+
+    private void produceFrame() {
+        JavaI420Buffer i420 = buildMyFrame();
+
+        long captureTimeNs = TimeUnit.MILLISECONDS.toNanos(SystemClock.elapsedRealtime());
+        VideoFrame frame = new VideoFrame(i420, 0 /* rotation */, captureTimeNs);
+
+        // writeFrame() calls frame.release() internally — do NOT release it yourself.
+        writeFrame(frame);
+    }
+
+    private JavaI420Buffer buildMyFrame() {
+        // Allocate and fill Y/U/V ByteBuffers here.
+        throw new UnsupportedOperationException("Fill and return a JavaI420Buffer");
+    }
+}
+```
+
+### Registering the Capturer with the SDK
+
+Set `StreamSource.CUSTOM` in the builder and call `setVideoCapturer()` with your instance **before** `publish()`. Create a fresh capturer for every publish session.
+
+```kotlin
+// Build the client once (licence check happens here)
+val client = IRed5WebrtcClient.builder()
+    .setActivity(this)
+    .setLicenseKey(YOUR_LICENSE_KEY)
+    .setServerIp("192.168.1.10")
+    .setVideoSource(IRed5WebrtcClient.StreamSource.CUSTOM)
+    .setVideoEnabled(true)
+    .setAudioEnabled(true)
+    .setVideoWidth(1280)
+    .setVideoHeight(720)
+    .setVideoFps(30)
+    .setEventListener(this)
+    .build()
+
+// Later, when ready to publish:
+val capturer = MyCustomCapturer()
+client.setVideoCapturer(capturer)  // hand the capturer to the SDK
+client.publish("myStream")
+```
+
+The SDK calls `capturer.initialize()` → `capturer.startCapture(width, height, fps)` automatically when the publish session starts. When `stopPublish()` is called, `stopCapture()` and eventually `dispose()` are invoked by the SDK.
+
+### Rules and Pitfalls
+
+| Rule | Why |
+|---|---|
+| Do **not** call `super.startCapture()` | The default implementation starts the surface texture listener, which conflicts with manual frame pushing |
+| Do **not** call `frame.release()` after `writeFrame()` | `writeFrame()` already calls `release()` internally; double-releasing crashes the native encoder |
+| Use `scheduleAtFixedRate`, not `scheduleWithFixedDelay` | `scheduleAtFixedRate` fires from the *start* of each tick, keeping delivery jitter-free even when individual ticks run slightly long |
+| Rewind `ByteBuffer` positions before wrapping | `JavaI420Buffer.wrap()` reads `remaining()` (limit − position), not `capacity()`. Call `buf.rewind()` before each `wrap()` call |
+| Do **not** share mutable `ByteBuffer` instances across frames | If frames are queued (producer-consumer pattern), each frame needs its own independent buffers |
+| Call `super.stopCapture()` and `super.dispose()` | The base class releases the surface texture helper |
+
+### JPEG Folder Capturer Example
+
+The testbed ships with `JpegFolderVideoCapturer` (`net.red5.testbed.advanced`) as a complete real-world reference. It demonstrates:
+
+- **Producer-consumer pattern** with a bounded `LinkedBlockingQueue` (capacity 10 frames, ~14 MB) to decouple slow JPEG decoding from real-time frame delivery
+- **BT.601 ARGB → I420 conversion** — converting Android `Bitmap` pixel data into the planar format WebRTC expects
+- **Scratch buffer reuse** — a single `IntArray` allocated at `startCapture` time rather than per-frame, eliminating 3.6 MB of heap churn per decoded image
+- **Two playback modes** selectable at construction time:
+
+| Mode | Behaviour |
+|---|---|
+| `PlaybackMode.LOOP` | Scans the folder, streams all files in alphabetical order, then immediately starts over. Newly added files are picked up on the next pass. |
+| `PlaybackMode.HOLD_LAST` | Decodes every file exactly once, then repeats the final frame indefinitely. Useful for "last known frame" scenarios. |
+
+**Usage:**
+
+```kotlin
+// LOOP — replay the animation continuously
+val capturer = JpegFolderVideoCapturer(
+    folderPath = "/sdcard/frames/",
+    mode = JpegFolderVideoCapturer.PlaybackMode.LOOP,
+    forcedFps = 24
+)
+
+// HOLD_LAST — show frames once, then freeze on the last one
+val capturer = JpegFolderVideoCapturer(
+    folderPath = "/sdcard/frames/",
+    mode = JpegFolderVideoCapturer.PlaybackMode.HOLD_LAST,
+    forcedFps = 10
+)
+
+client.setVideoCapturer(capturer)
+client.publish("myStream")
+```
+
+The `forcedFps` parameter overrides the FPS set in the builder, so you can change the frame rate per session without rebuilding the client. Values outside the 1–30 range fall back to the SDK-configured framerate.
 
 ## Chat Integration
 
