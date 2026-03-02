@@ -19,6 +19,7 @@ import net.red5.android.core.Red5Renderer
 import net.red5.android.core.model.RTCStats
 import net.red5.testbed.R
 import net.red5.testbed.SettingsActivity
+import net.red5.testbed.utility.ConnectionForegroundService
 
 
 class StandaloneSubscribeActivity : AppCompatActivity(), Red5EventListener {
@@ -151,6 +152,7 @@ class StandaloneSubscribeActivity : AppCompatActivity(), Red5EventListener {
     }
 
     override fun onDestroy() {
+        ConnectionForegroundService.stop(this)
         if (webrtcClient != null) {
             webrtcClient!!.release()
         }
@@ -190,6 +192,7 @@ class StandaloneSubscribeActivity : AppCompatActivity(), Red5EventListener {
 
     override fun onSubscribeStarted() {
         Log.d(TAG, "Subscribe started successfully")
+        ConnectionForegroundService.startSubscribe(this)
         runOnUiThread(Runnable {
             isSubscribing = true
             subscribeButton!!.setText("STOP SUBSCRIBE")
@@ -205,6 +208,7 @@ class StandaloneSubscribeActivity : AppCompatActivity(), Red5EventListener {
 
     override fun onSubscribeStopped() {
         Log.d(TAG, "Subscribe stopped")
+        ConnectionForegroundService.stop(this)
         runOnUiThread(Runnable {
             isSubscribing = false
             subscribeButton!!.setText("START SUBSCRIBE")
