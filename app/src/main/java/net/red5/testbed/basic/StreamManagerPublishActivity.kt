@@ -25,6 +25,7 @@ import net.red5.android.core.Red5Renderer
 import net.red5.android.core.model.RTCStats
 import net.red5.testbed.R
 import net.red5.testbed.SettingsActivity
+import net.red5.testbed.utility.ConnectionForegroundService
 
 /**
  * Simple example showing publishing to Red5
@@ -302,6 +303,8 @@ class StreamManagerPublishActivity : AppCompatActivity(), Red5EventListener {
 
     override fun onResume() {
         super.onResume()
+        webrtcClient?.onActivityResume()
+
     }
 
     override fun onStop() {
@@ -319,6 +322,7 @@ class StreamManagerPublishActivity : AppCompatActivity(), Red5EventListener {
 
     override fun onPublishStarted() {
         Log.d(TAG, "Publish started successfully")
+        ConnectionForegroundService.startPublish(this)
         runOnUiThread(Runnable {
             isPublishing = true
             publishButton!!.setText("STOP PUBLISH")
@@ -336,6 +340,7 @@ class StreamManagerPublishActivity : AppCompatActivity(), Red5EventListener {
 
     override fun onPublishStopped() {
         Log.d(TAG, "Publish stopped")
+        ConnectionForegroundService.stop(this)
         runOnUiThread(Runnable {
             isPublishing = false
             publishButton!!.setText("START PUBLISH")
