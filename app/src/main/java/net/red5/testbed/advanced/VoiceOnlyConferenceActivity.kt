@@ -26,6 +26,7 @@ import net.red5.android.core.model.RTCStats
 import net.red5.android.core.model.Red5ConferenceParticipant
 import net.red5.testbed.R
 import net.red5.testbed.SettingsActivity
+import net.red5.testbed.utility.ConnectionForegroundService
 import org.json.JSONObject
 import kotlin.collections.get
 import kotlin.math.min
@@ -98,6 +99,7 @@ class VoiceOnlyConferenceActivity : AppCompatActivity(), IRed5WebrtcClient.Red5E
                 roomId: String,
                 conferenceParticipants: ArrayList<Red5ConferenceParticipant>
             ) {
+                ConnectionForegroundService.startConference(this@VoiceOnlyConferenceActivity)
                 updateStatus("Connected", "#4CAF50")
                 updateParticipantCount()
                 isConnected = true
@@ -491,6 +493,7 @@ class VoiceOnlyConferenceActivity : AppCompatActivity(), IRed5WebrtcClient.Red5E
     }
 
     private fun leaveConference() {
+        ConnectionForegroundService.stop(this)
         updateStatus("Disconnected", "#F44336")
         isConnected = false
         red5Client?.release()
@@ -638,6 +641,7 @@ class VoiceOnlyConferenceActivity : AppCompatActivity(), IRed5WebrtcClient.Red5E
     }
 
     override fun onDestroy() {
+        ConnectionForegroundService.stop(this)
         super.onDestroy()
     }
 

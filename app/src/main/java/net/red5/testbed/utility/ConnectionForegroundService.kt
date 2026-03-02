@@ -73,7 +73,11 @@ class ConnectionForegroundService : Service() {
     }
 
     private fun buildNotification(mode: String): Notification {
-        val text = if (mode == MODE_SUBSCRIBE) "Receiving live stream" else "Publishing live stream"
+        val text = when (mode) {
+            MODE_SUBSCRIBE -> "Receiving live stream"
+            MODE_CONFERENCE -> "Active conference call"
+            else -> "Publishing live stream"
+        }
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Live stream active")
             .setContentText(text)
@@ -89,10 +93,13 @@ class ConnectionForegroundService : Service() {
         private const val EXTRA_MODE = "mode"
         const val MODE_PUBLISH = "publish"
         const val MODE_SUBSCRIBE = "subscribe"
+        const val MODE_CONFERENCE = "conference"
 
         fun startPublish(context: Context) = start(context, MODE_PUBLISH)
 
         fun startSubscribe(context: Context) = start(context, MODE_SUBSCRIBE)
+
+        fun startConference(context: Context) = start(context, MODE_CONFERENCE)
 
         private fun start(context: Context, mode: String) {
             val intent = Intent(context, ConnectionForegroundService::class.java)
