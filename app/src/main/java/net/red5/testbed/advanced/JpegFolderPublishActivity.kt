@@ -41,6 +41,7 @@ class JpegFolderPublishActivity : AppCompatActivity(), Red5EventListener {
     private var btnPublish: Button? = null
     private var statusTextView: TextView? = null
     private var rgPlaybackMode: RadioGroup? = null
+    private var rgConnectionMode: RadioGroup? = null
 
     private var red5Client: IRed5WebrtcClient? = null
     private var isPublishing = false
@@ -92,6 +93,7 @@ class JpegFolderPublishActivity : AppCompatActivity(), Red5EventListener {
         btnPublish = findViewById(R.id.btn_publish)
         statusTextView = findViewById(R.id.status_indicator_text)
         rgPlaybackMode = findViewById(R.id.rg_playback_mode)
+        rgConnectionMode = findViewById(R.id.rg_connection_mode)
 
         // Publish button starts disabled until licence is validated
         btnPublish?.isEnabled = false
@@ -183,6 +185,12 @@ class JpegFolderPublishActivity : AppCompatActivity(), Red5EventListener {
 
         val fps = etFps?.text?.toString()?.toIntOrNull()?.coerceIn(1, 30) ?: 20
 
+        if (rgConnectionMode?.checkedRadioButtonId == R.id.rb_stream_manager) {
+            red5Client?.config?.serverIp = SettingsActivity.getStreamManagerHost(this)
+        } else {
+            red5Client?.config?.serverIp = SettingsActivity.getStandaloneServerIp(this)
+        }
+
         // Create a fresh capturer for this publish session and hand it to the client.
         val capturer = JpegFolderVideoCapturer(folderPath, mode, fps)
         red5Client?.setVideoCapturer(capturer)
@@ -195,6 +203,8 @@ class JpegFolderPublishActivity : AppCompatActivity(), Red5EventListener {
         btnBrowse?.isEnabled = false
         rgPlaybackMode?.isEnabled = false
         rgPlaybackMode?.alpha = 0.5f
+        rgConnectionMode?.isEnabled = false
+        rgConnectionMode?.alpha = 0.5f
 
         red5Client?.publish(SettingsActivity.getStreamName(this))
     }
@@ -277,6 +287,8 @@ class JpegFolderPublishActivity : AppCompatActivity(), Red5EventListener {
             btnBrowse?.isEnabled = true
             rgPlaybackMode?.isEnabled = true
             rgPlaybackMode?.alpha = 1f
+            rgConnectionMode?.isEnabled = true
+            rgConnectionMode?.alpha = 1f
             Toast.makeText(this, "Publish stopped", Toast.LENGTH_SHORT).show()
         }
     }
@@ -292,6 +304,8 @@ class JpegFolderPublishActivity : AppCompatActivity(), Red5EventListener {
             btnBrowse?.isEnabled = true
             rgPlaybackMode?.isEnabled = true
             rgPlaybackMode?.alpha = 1f
+            rgConnectionMode?.isEnabled = true
+            rgConnectionMode?.alpha = 1f
             Toast.makeText(this, "Publish failed: $error", Toast.LENGTH_LONG).show()
         }
     }
