@@ -32,6 +32,41 @@
         android:orientation="vertical"
         android:padding="20dp">
 
+        <!-- Connection mode -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CONNECTION MODE"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp" />
+
+        <RadioGroup
+            android:id="@+id/rg_connection_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <RadioButton
+                android:id="@+id/rb_standalone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="24dp"
+                android:checked="true"
+                android:text="Standalone"
+                android:textColor="#FFFFFF" />
+
+            <RadioButton
+                android:id="@+id/rb_stream_manager"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Stream Manager (Cloud)"
+                android:textColor="#FFFFFF" />
+
+        </RadioGroup>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
