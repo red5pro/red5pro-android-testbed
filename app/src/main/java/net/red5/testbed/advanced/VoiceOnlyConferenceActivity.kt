@@ -21,6 +21,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.gson.JsonElement
 import net.red5.android.api.IRed5WebrtcClient
+import java.net.HttpURLConnection
+import java.net.URL
 import net.red5.android.core.Red5Renderer
 import net.red5.android.core.model.RTCStats
 import net.red5.android.core.model.Red5ConferenceParticipant
@@ -489,7 +491,53 @@ class VoiceOnlyConferenceActivity : AppCompatActivity(), IRed5WebrtcClient.Red5E
         val metaData = JSONObject()
         metaData.put("name", userName)
 
-        red5Client?.join(roomId, userId, "", userRole, metaData.toString())
+        fetchTokenAndJoin(userId, metaData.toString())
+    }
+
+    private fun fetchTokenAndJoin(userId: String, metaData: String) {
+        val host = SettingsActivity.Companion.getStreamManagerHost(this)
+        val cleanHost = host.removePrefix("https://").removePrefix("http://")
+        val urlString = "https://$cleanHost/config-meetings/api/generate-token"
+
+        Thread {
+            var fetchedToken = ""
+            try {
+                val connection = URL(urlString).openConnection() as HttpURLConnection
+                connection.requestMethod = "POST"
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.doOutput = true
+
+                val body = JSONObject().apply {
+                    put("userId", userId)
+                    put("roomId", roomId)
+                    put("role", userRole)
+                    put("expirationMinutes", 300)
+                }
+                connection.outputStream.use { it.write(body.toString().toByteArray()) }
+
+                if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                    val response = connection.inputStream.bufferedReader().readText()
+                    fetchedToken = try {
+                        JSONObject(response).optString("token", "")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to parse token: ${e.message}")
+                        ""
+                    }
+                } else {
+                    Log.e(TAG, "Token fetch failed with code: ${connection.responseCode}")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Token fetch error: ${e.message}")
+                runOnUiThread {
+                    Toast.makeText(this, "Token fetch error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+                return@Thread
+            }
+
+            runOnUiThread {
+                red5Client?.join(roomId, userId, fetchedToken, userRole, metaData)
+            }
+        }.start()
     }
 
     private fun leaveConference() {
