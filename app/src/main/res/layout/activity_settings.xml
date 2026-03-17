@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:keepScreenOn="true"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp">
+
+        <!-- License Key -->
+        <TextView
+            android:id="@+id/tv_license_key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SDK License Key"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp" />
+
+        <EditText
+            android:id="@+id/et_license_key"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="XXXX-XXXX-XXXX-XXXX"
+            android:inputType="textUri"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_below="@id/tv_license_key"
+            android:layout_marginTop="8dp" />
+
+        <!-- Stream Manager Host -->
+        <TextView
+            android:id="@+id/tv_stream_manager_host"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stream Manager Host"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/et_license_key"
+            android:layout_marginTop="12dp" />
+
+        <EditText
+            android:id="@+id/et_stream_manager_host"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="https://my-deploy.cloud.red5.net"
+            android:inputType="textUri"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_below="@id/tv_stream_manager_host"
+            android:layout_marginTop="8dp" />
+
+        <!-- Standalone Server IP -->
+        <TextView
+            android:id="@+id/tv_standalone_server_ip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Standalone Server IP"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/et_stream_manager_host"
+            android:layout_marginTop="24dp" />
+
+        <EditText
+            android:id="@+id/et_standalone_server_ip"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="https://my-deploy.red5.net"
+            android:inputType="text"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_below="@id/tv_standalone_server_ip"
+            android:layout_marginTop="8dp" />
+
+        <!-- App Name -->
+        <TextView
+            android:id="@+id/tv_app_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="App Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/et_standalone_server_ip"
+            android:layout_marginTop="24dp" />
+
+        <EditText
+            android:id="@+id/et_app_name"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="live"
+            android:inputType="text"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_below="@id/tv_app_name"
+            android:layout_marginTop="8dp" />
+
+        <!-- Node Group -->
+        <TextView
+            android:id="@+id/tv_node_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Node Group"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/et_app_name"
+            android:layout_marginTop="24dp" />
+
+        <EditText
+            android:id="@+id/et_node_group"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="default"
+            android:inputType="text"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_below="@id/tv_node_group"
+            android:layout_marginTop="8dp" />
+
+        <!-- Stream Name -->
+        <TextView
+            android:id="@+id/tv_stream_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stream Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/et_node_group"
+            android:layout_marginTop="24dp" />
+
+        <EditText
+            android:id="@+id/et_stream_name"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="myStream"
+            android:inputType="text"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_below="@id/tv_stream_name"
+            android:layout_marginTop="8dp" />
+
+        <!-- Username -->
+        <TextView
+            android:id="@+id/tv_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="User Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/et_stream_name"
+            android:layout_marginTop="24dp" />
+
+        <EditText
+            android:id="@+id/et_username"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint=""
+            android:inputType="text"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_below="@id/tv_username"
+            android:layout_marginTop="8dp" />
+
+        <!-- Password -->
+        <TextView
+            android:id="@+id/tv_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Password"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/et_username"
+            android:layout_marginTop="24dp" />
+
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint=""
+            android:inputType="text"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_below="@id/tv_password"
+            android:layout_marginTop="8dp" />
+
+        <!-- Pubnub Publish Key -->
+        <TextView
+            android:id="@+id/tv_pubnub_publish_key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pubnub Publish Key"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/et_password"
+            android:layout_marginTop="24dp" />
+
+        <EditText
+            android:id="@+id/et_pubnub_publish_key"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint=""
+            android:inputType="text"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_below="@id/tv_pubnub_publish_key"
+            android:layout_marginTop="8dp" />
+
+        <!-- Pubnub Subscribe Key -->
+        <TextView
+            android:id="@+id/tv_pubnub_subscribe_key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pubnub Subscribe Key"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/et_pubnub_publish_key"
+            android:layout_marginTop="24dp" />
+
+        <EditText
+            android:id="@+id/et_pubnub_subscribe_key"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint=""
+            android:inputType="text"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_below="@id/tv_pubnub_subscribe_key"
+            android:layout_marginTop="8dp" />
+
+        <!-- DTLS Setup Mode -->
+        <TextView
+            android:id="@+id/tv_dtls_setup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DTLS Setup Mode"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/et_pubnub_subscribe_key"
+            android:layout_marginTop="24dp" />
+
+        <RadioGroup
+            android:id="@+id/rg_dtls_setup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_dtls_setup"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_actpass"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="actpass"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/rb_active"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="active" />
+
+            <RadioButton
+                android:id="@+id/rb_passive"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="passive" />
+
+        </RadioGroup>
+
+        <!-- Save Button -->
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="SAVE SETTINGS"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_below="@id/rg_dtls_setup"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Details -->
+        <TextView
+            android:id="@+id/tv_version"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SDK Version: N/A"
+            android:textSize="16sp"
+            android:layout_below="@id/btn_save"
+            android:layout_marginTop="24dp" />
+
+        <TextView
+            android:id="@+id/tv_lm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="LM: N/A"
+            android:textSize="16sp"
+            android:layout_below="@id/tv_version"
+            android:layout_marginTop="24dp" />
+
+    </RelativeLayout>
+
+</ScrollView>

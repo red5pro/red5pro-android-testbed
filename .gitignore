@@ -1,0 +1,14 @@
+*.iml
+.gradle
+/local.properties
+.idea/
+.DS_Store
+app/libs/*.aar
+/build
+app/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+/app/src/main/res/raw/test.xml

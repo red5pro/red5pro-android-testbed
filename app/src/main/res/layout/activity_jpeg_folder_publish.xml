@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1A1A2E"
+    android:keepScreenOn="true">
+
+    <!-- Status indicator (top-left) -->
+    <TextView
+        android:id="@+id/status_indicator_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:padding="16dp"
+        android:text="Disconnected"
+        android:textColor="#FF3333"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:translationZ="2dp" />
+
+    <!-- Config section -->
+    <LinearLayout
+        android:id="@+id/config_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/status_indicator_text"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="16dp"
+        android:background="#22FFFFFF"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Connection mode -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CONNECTION MODE"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp" />
+
+        <RadioGroup
+            android:id="@+id/rg_connection_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <RadioButton
+                android:id="@+id/rb_standalone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="24dp"
+                android:checked="true"
+                android:text="Standalone"
+                android:textColor="#FFFFFF" />
+
+            <RadioButton
+                android:id="@+id/rb_stream_manager"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Stream Manager (Cloud)"
+                android:textColor="#FFFFFF" />
+
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="JPEG Frames Folder"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp" />
+
+        <!-- Folder path input row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <EditText
+                android:id="@+id/et_folder_path"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:hint="/sdcard/frames/"
+                android:inputType="textUri"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#88FFFFFF"
+                android:backgroundTint="#55FFFFFF"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:singleLine="true" />
+
+            <Button
+                android:id="@+id/btn_browse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Browse"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:backgroundTint="#FF0066CC" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Folder containing .jpg / .jpeg files streamed in alphabetical order.\nOn Android 11+, use /sdcard/Android/data/net.red5.testbed/files/frames/\nor grant All Files Access in system settings."
+            android:textColor="#AAFFFFFF"
+            android:textSize="11sp" />
+
+        <!-- Playback mode -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="6dp"
+            android:text="PLAYBACK MODE"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/rg_playback_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_loop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="24dp"
+                android:checked="true"
+                android:text="Loop"
+                android:textColor="#FFFFFF" />
+
+            <RadioButton
+                android:id="@+id/rb_hold_last"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hold Last Frame"
+                android:textColor="#FFFFFF" />
+
+        </RadioGroup>
+
+        <!-- FPS -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="FPS (1–30)"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/et_fps"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="20"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#88FFFFFF"
+                android:backgroundTint="#55FFFFFF"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:maxLength="2"
+                android:singleLine="true" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Publish button at bottom -->
+    <LinearLayout
+        android:id="@+id/btn_publish_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"
+        android:translationZ="2dp">
+
+        <Button
+            android:id="@+id/btn_publish"
+            android:layout_width="220dp"
+            android:layout_height="60dp"
+            android:text="START PUBLISH"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:backgroundTint="#FF0066CC" />
+    </LinearLayout>
+
+</RelativeLayout>
