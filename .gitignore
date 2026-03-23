@@ -17,3 +17,6 @@ local.properties
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Claude
+.claude/
