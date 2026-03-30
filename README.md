@@ -1,8 +1,8 @@
-# Red5 Android WebRTC SDK Testbed(Example App)
+# Red5 Android SDK Testbed(Example App)
 
 ## Introduction
 
-Build low-latency live streaming apps with the Red5 Android WebRTC SDK. Stream video using WebRTC, and subscribe (play) streams via WebRTC. Compatible with both Red5Pro Cloud (Stream Manager) and standalone Red5Pro servers.
+Build low-latency live streaming apps with the Red5 Android SDK. Stream video using WebRTC, and subscribe (play) streams via WebRTC. Compatible with both Red5Pro Cloud (Stream Manager) and standalone Red5Pro servers.
 
 ## Table of Contents
 
@@ -650,7 +650,7 @@ The `forcedFps` parameter overrides the FPS set in the builder, so you can chang
 
 ## Chat Integration
 
-The Red5 Android WebRTC SDK includes built-in chat functionality, allowing you to build infinitely scalable chat applications alongside your live streaming features.
+The Red5 Android SDK includes built-in chat functionality, allowing you to build infinitely scalable chat applications alongside your live streaming features.
 
 ### Chat Overview
 
@@ -800,7 +800,7 @@ For a complete working implementation of chat functionality, refer to the `ChatA
 
 ## Conferencing
 
-The Red5 Android WebRTC SDK provides infinitely scalable real-time conferencing capabilities, allowing you to build applications similar to Google Meet or Zoom. Conference rooms support multiple participants with different roles (publishers and subscribers), real-time media management, and automatic participant handling.
+The Red5 Android SDK provides infinitely scalable real-time conferencing capabilities, allowing you to build applications similar to Google Meet or Zoom. Conference rooms support multiple participants with different roles (publishers and subscribers), real-time media management, and automatic participant handling.
 
 **Note:** Conferencing requires Red5 Cloud (Stream Manager) and does not work with standalone servers.
 
@@ -999,7 +999,7 @@ The complete source code is available in the example application.
 
 ## Stats Collector
 
-The Red5 Android WebRTC SDK includes a comprehensive stats collection system that provides real-time metrics about your WebRTC connections. This is essential for monitoring stream quality, diagnosing network issues, and building quality indicators in your UI.
+The Red5 Android SDK includes a comprehensive stats collection system that provides real-time metrics about your WebRTC connections. This is essential for monitoring stream quality, diagnosing network issues, and building quality indicators in your UI.
 
 ### Overview
 
