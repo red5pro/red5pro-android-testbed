@@ -1,4 +1,4 @@
-# Red5 Android SDK Testbed(Example App)
+# Red5 Android SDK Testbed (Example App)
 
 ## Introduction
 
