@@ -89,6 +89,13 @@ Ensure you have the necessary permissions in your `AndroidManifest.xml` for publ
 - Camera and microphone permissions for publishing
 - Internet permission for both publishing and subscribing
 
+### SDK Download
+
+The Android SDK usage guide works for both Red5 Cloud and Red5 Pro customers. However, the download source depends on your account type:
+- If you have a **Red5 Cloud account**, you can download the SDK from your Account → Plans section or from:
+  [https://www.red5.net/docs/red5-cloud/development/sdks/android-sdk/](https://www.red5.net/docs/red5-cloud/development/sdks/android-sdk/)
+- If you have a **Red5 Pro account**, you can download the SDK from your Account → Downloads section.
+
 ## Quick Start
 
 ```java
