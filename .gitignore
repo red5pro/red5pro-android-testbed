@@ -12,3 +12,11 @@ app/build
 local.properties
 
 /app/src/main/res/raw/test.xml
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Claude
+.claude/

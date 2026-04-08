@@ -1,0 +1,19 @@
+android:
+  udid: "AXUG025103004394"       # run: adb devices
+  app_package: "net.red5.testbed"
+  app_activity: ".MainActivity"
+  automation_name: "UiAutomator2"
+  appium_url: "http://localhost:4723/wd/hub"
+
+browser:
+  headless: false                  # set true to run Chrome headless
+
+red5:
+  license_key: "XXXX-XXXX-XXXX-XXXX"
+  sm_url: "https://meet-sm2-1-ord.ci.red5.net"
+  standalone_ip: "163.237.0.198"
+  app_name: "live"
+  conference_room: "testroom"
+  stream_name: "testStream"
+  username: ""
+  password: ""
