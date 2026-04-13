@@ -45,6 +45,7 @@ class JpegFolderPublishActivity : AppCompatActivity(), Red5EventListener {
 
     private var red5Client: IRed5WebrtcClient? = null
     private var isPublishing = false
+    private var activeCapturer: JpegFolderVideoCapturer? = null
 
     // -------------------------------------------------------------------------
     // Folder picker
@@ -186,13 +187,17 @@ class JpegFolderPublishActivity : AppCompatActivity(), Red5EventListener {
         val fps = etFps?.text?.toString()?.toIntOrNull()?.coerceIn(1, 30) ?: 20
 
         if (rgConnectionMode?.checkedRadioButtonId == R.id.rb_stream_manager) {
-            red5Client?.config?.serverIp = SettingsActivity.getStreamManagerHost(this)
+            red5Client?.config?.streamManagerHost = SettingsActivity.getStreamManagerHost(this)
+            red5Client?.config?.serverIp = ""
         } else {
+            red5Client?.config?.streamManagerHost = ""
             red5Client?.config?.serverIp = SettingsActivity.getStandaloneServerIp(this)
         }
 
-        // Create a fresh capturer for this publish session and hand it to the client.
-        val capturer = JpegFolderVideoCapturer(folderPath, mode, fps)
+        // Reuse the existing capturer if available so the SDK's preserved video track
+        // keeps its observer valid. On first publish a new instance is created.
+        val capturer = activeCapturer?.also { it.restart(folderPath, mode, fps) }
+            ?: JpegFolderVideoCapturer(folderPath, mode, fps).also { activeCapturer = it }
         red5Client?.setVideoCapturer(capturer)
 
         updateStatus("Connecting...", "#FFA500")
@@ -278,6 +283,7 @@ class JpegFolderPublishActivity : AppCompatActivity(), Red5EventListener {
 
     override fun onPublishStopped() {
         Log.d(TAG, "Publish stopped")
+        activeCapturer?.stopProducer()
         runOnUiThread {
             isPublishing = false
             updateStatus("Ready", "#00CC44")
