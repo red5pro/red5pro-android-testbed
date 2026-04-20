@@ -94,7 +94,7 @@ Ensure you have the necessary permissions in your `AndroidManifest.xml` for publ
 The Android SDK usage guide works for both Red5 Cloud and Red5 Pro customers. However, the download source depends on your account type:
 - If you have a **Red5 Cloud account**, you can download the SDK from your Account → Plans section or from:
   [https://www.red5.net/docs/red5-cloud/development/sdks/android-sdk/](https://www.red5.net/docs/red5-cloud/development/sdks/android-sdk/)
-- If you have a **Red5 Pro account**, you can download the SDK from your Account → Downloads section.
+- If you have a **Red5 Pro account**, you can download the SDK from your Account → Downloads section. Read this documentation [guide](https://www.red5.net/docs/red5-pro/development/sdks/red5-webrtc-sdk/ios-sdk/)
 
 ## Quick Start
 
