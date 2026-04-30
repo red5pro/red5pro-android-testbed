@@ -34,9 +34,9 @@ import java.util.concurrent.TimeUnit
  *                    indefinitely once the single pass is complete.
  */
 class JpegFolderVideoCapturer(
-    private val folderPath: String,
-    private val mode: PlaybackMode = PlaybackMode.LOOP,
-    private val forcedFps: Int = 0
+    private var folderPath: String,
+    private var mode: PlaybackMode = PlaybackMode.LOOP,
+    private var forcedFps: Int = 0
 ) : Red5CustomVideoCapturer() {
 
     enum class PlaybackMode {
@@ -125,6 +125,32 @@ class JpegFolderVideoCapturer(
         shutdownExecutors()
         frameQueue.clear()
         super.stopCapture()
+    }
+
+    /**
+     * Stops the producer/consumer threads without notifying the WebRTC layer.
+     * Use this between publish sessions when the SDK is preserving the video track
+     * for reuse — calling stopCapture() would invalidate the capturer observer.
+     */
+    fun stopProducer() {
+        producerRunning = false
+        shutdownExecutors()
+        frameQueue.clear()
+    }
+
+    /**
+     * Updates the source parameters and restarts the producer/consumer threads.
+     * The WebRTC capturer observer is left untouched so the existing video track
+     * continues to receive frames on the next publish session.
+     */
+    fun restart(newPath: String, newMode: PlaybackMode, newFps: Int) {
+        stopProducer()
+        folderPath = newPath
+        mode = newMode
+        forcedFps = newFps
+        if (targetWidth > 0 && targetHeight > 0) {
+            startCapture(targetWidth, targetHeight, newFps)
+        }
     }
 
     override fun dispose() {
