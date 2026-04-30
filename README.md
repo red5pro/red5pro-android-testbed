@@ -56,6 +56,7 @@ Build low-latency live streaming apps with the Red5 Android SDK. Stream video us
    - 12.5 [Audio Levels](#audio-levels)
    - 12.6 [Conference Stats](#conference-stats)
    - 12.7 [Complete Example](#complete-example-2)
+13. [Recommended ProGuard Rules](#recommended-proguard-rules)
 
 ## Installation
 
@@ -1234,4 +1235,31 @@ double totalPausesDuration = pStats.totalPausesDuration;   // Total pause time (
 String decoderImplementation = pStats.decoderImplementation; // Video decoder name
 ```
 
+## Recommended ProGuard Rules
+
+Add the following rules to your `proguard-rules.pro` to prevent obfuscation from breaking the SDK and its dependencies:
+
+```proguard
+# ── Red5 Android SDK ──────────────────────────────────────────────
+# Keep public API surface only; internals can be obfuscated
+-keep public class net.red5.android.** { public protected *; }
+
+# ── WebRTC ────────────────────────────────────────────────────────
+# WebRTC uses JNI heavily — keep classes but let R8 remove truly unused ones
+-keep class org.webrtc.** { *; }
+-keep class org.jni_zero.** { *; }
+
+# JNI entry points (covers both webrtc and jni_zero annotations)
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+-keepclassmembers class * {
+    @org.webrtc.CalledByNative <methods>;
+    @org.webrtc.CalledByNativeUnchecked <methods>;
+    @org.jni_zero.CalledByNative <methods>;
+    @org.jni_zero.CalledByNativeUnchecked <methods>;
+}
+
+-dontwarn org.slf4j.impl.StaticLoggerBinder
+```
 
